@@ -1,6 +1,6 @@
 import bpy
 
-class load_CSV(bpy.types.Operator):
+class Load_CSV(bpy.types.Operator):
     bl_idname = "view3d.do_stuff"
     bl_label = "CSV OP"
     bl_description = "Loads CSV"
