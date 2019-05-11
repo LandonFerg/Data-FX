@@ -10,6 +10,6 @@ class Main_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        row = layout.row
+        row = layout.row()
         row.operator('view3d.do_stuff', text = "Do Stuff")
 

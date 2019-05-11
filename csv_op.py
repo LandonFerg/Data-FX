@@ -7,4 +7,5 @@ class Load_CSV(bpy.types.Operator):
 
     def execute(self, context):
         # Code here
+        print("Hello World")
         return {'FINISHED'}
