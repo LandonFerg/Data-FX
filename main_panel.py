@@ -1,6 +1,6 @@
 import bpy
 
-class Main_Panel(bpy.types.Panel):
+class PT_Main_Panel(bpy.types.Panel):
     bl_idname = "Main_Panel"
     bl_label = "DataFX"
     bl_category = "DataFX"
@@ -11,5 +11,5 @@ class Main_Panel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator('view3d.do_stuff', text = "Do Stuff")
+        row.operator('view3d.do_stuff', text = "Load-CSV")
 

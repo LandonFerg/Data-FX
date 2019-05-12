@@ -24,8 +24,8 @@ bl_info = {
 
 import bpy
 
-from . csv_op import Load_CSV
-from . main_panel import Main_Panel
-classes = (Load_CSV, Main_Panel)
+from . csv_op import OT_Load_CSV
+from . main_panel import PT_Main_Panel
+classes = (OT_Load_CSV, PT_Main_Panel)
 
 register, unregister = bpy.utils.register_classes_factory(classes)
