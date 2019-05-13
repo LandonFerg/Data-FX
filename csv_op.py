@@ -6,11 +6,12 @@ class OT_Load_CSV(bpy.types.Operator):
     bl_idname = "view3d.do_stuff"
     bl_label = "Load CSV"
     bl_description = "Loads CSV"
-    csvMax = 100 #Length of csv columns
+    csvMax = 8 #Length of csv columns
     filepath = bpy.props.StringProperty(
         subtype="FILE_PATH",
         default='*.csv;'
         )
+    # X, Y, Z inputs #
     bpy.types.Scene.my_tool_Xs = bpy.props.IntProperty(
         name = 'X-Loc',
         default = 0,
@@ -32,9 +33,9 @@ class OT_Load_CSV(bpy.types.Operator):
         max = csvMax
 
     )
-    bpy.types.Scene.dupeObj = bpy.props.StringProperty()
-    bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(
-        name="Enable dupe",
+    bpy.types.Scene.dupeObj = bpy.props.StringProperty()    # Dupe obj selector
+    bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(   # Enable dupe checkbox
+        name="Use dupe object",
         default = False
         )
 
@@ -44,18 +45,29 @@ class OT_Load_CSV(bpy.types.Operator):
 
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
-                xProp = bpy.context.scene.my_tool_Xs # Column X value
-                yProp = bpy.context.scene.my_tool_Ys
-                zProp = bpy.context.scene.my_tool_Zs
+                xProp = bpy.context.scene.my_tool_Xs # X val
+                yProp = bpy.context.scene.my_tool_Ys # Y val
+                zProp = bpy.context.scene.my_tool_Zs # Z val
+                clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
+                dupe_object_str = bpy.context.scene.dupeObj # Dupe string
                 next(reader) # Skip headers
                 for row in reader:
                     currentX = row[xProp]
                     currentY = row[yProp]
                     currentZ = row[zProp]
-
-                    csvMax = len(row)
-                    newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
-                    bpy.context.object.dimensions = [0.4,0.4,0.4]
+                    csvMax = len(row) # set max value for column select
+                    
+                    if clone_dup:
+                        dupeObject = bpy.data.objects[dupe_object_str] # Dupe inpit
+                        newDupeObject = dupeObject.data.copy() # Cloned dupe
+                        #newDupeObject.active_material = dupeObject.active_material.copy() # Clone material FIXME
+                        clonedObj = bpy.data.objects.new("dupe_object_str", newDupeObject) # new obj
+                        clonedObj.location = (float(row[xProp]), float(row[yProp]), float(row[zProp])) # Update clone location
+                        bpy.context.collection.objects.link(clonedObj)
+                        bpy.context.collection.objects.update # Update scene
+                    else:   # Default cube if unchecked
+                        newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
+                        bpy.context.object.dimensions = [0.4,0.4,0.4]
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")
