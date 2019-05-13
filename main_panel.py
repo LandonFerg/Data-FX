@@ -19,8 +19,6 @@ class PT_Main_Panel(bpy.types.Panel):
 
         row2 = layout.row()
         row2.prop(context.scene, 'my_tool_col')
-        # FIXME: AttributeError: 'VIEW3D_OT_do_stuff' object has no attribute 'tool_col'
-        mainOp.tool_col = context.scene.my_tool_col
 
 
         #NOTES

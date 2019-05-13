@@ -25,9 +25,10 @@ class OT_Load_CSV(bpy.types.Operator):
 
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
+                colProp = bpy.context.scene.my_tool_col # Column value
                 next(reader) # Skip headers
                 for row in reader:
-                    print(row[0])
+                    print(row[colProp])
                     csvMax = len(row)
 
         else:
