@@ -16,9 +16,16 @@ class PT_Main_Panel(bpy.types.Panel):
 
         row = layout.row()
         mainOp = row.operator('view3d.do_stuff', text = "Load-CSV")
+        #row.label("Scatter Plot")
 
         row2 = layout.row()
-        row2.prop(context.scene, 'my_tool_col')
+        row2.prop(context.scene, 'my_tool_Xs')
+
+        row3 = layout.row()
+        row3.prop(context.scene, 'my_tool_Ys')
+
+        row4 = layout.row()
+        row4.prop(context.scene, 'my_tool_Zs')
 
 
         #NOTES
