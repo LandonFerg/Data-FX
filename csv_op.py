@@ -30,8 +30,13 @@ class OT_Load_CSV(bpy.types.Operator):
         default = 0,
         min = 0,
         max = csvMax
+
     )
-    
+    bpy.types.Scene.dupeObj = bpy.props.StringProperty()
+    bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(
+        name="Enable dupe",
+        default = False
+        )
 
     def execute(self, context):
         if(self.filepath.endswith('.csv')): # File is CSV
@@ -50,7 +55,7 @@ class OT_Load_CSV(bpy.types.Operator):
 
                     csvMax = len(row)
                     newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
-                    bpy.context.object.dimensions = [0.2,0.2,0.2]
+                    bpy.context.object.dimensions = [0.4,0.4,0.4]
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")

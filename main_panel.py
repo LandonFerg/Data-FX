@@ -15,6 +15,7 @@ class PT_Main_Panel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
+        row.label(text="Scatter Plot")
         mainOp = row.operator('view3d.do_stuff', text = "Load-CSV")
         #row.label("Scatter Plot")
 
@@ -27,7 +28,18 @@ class PT_Main_Panel(bpy.types.Panel):
         row4 = layout.row()
         row4.prop(context.scene, 'my_tool_Zs')
 
+        row5 = layout.row()
+        row5.prop(context.scene, 'dupe_enable')
 
+        row6 = layout.row()
+        row6.prop_search(context.scene, "dupeObj", context.scene, "objects")
+
+        # Disable dupeObj if checkbox is false
+        if bpy.context.scene.dupe_enable == False:
+            row6.enabled = False
+        elif bpy.context.scene.dupe_enable == True:
+            row6.enabled = True
+            
         #NOTES
         #row2 = layout.row()
         #row2.operator(another operator function)
