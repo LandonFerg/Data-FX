@@ -7,9 +7,23 @@ class PT_Main_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
 
+    @classmethod
+    def poll(cls, context):
+        return (context.object is not None)
+
     def draw(self, context):
         layout = self.layout
 
         row = layout.row()
-        row.operator('view3d.do_stuff', text = "Load-CSV")
+        mainOp = row.operator('view3d.do_stuff', text = "Load-CSV")
 
+        row2 = layout.row()
+        row2.prop(context.scene, 'my_tool_col')
+        # FIXME: AttributeError: 'VIEW3D_OT_do_stuff' object has no attribute 'tool_col'
+        mainOp.tool_col = context.scene.my_tool_col
+
+
+        #NOTES
+        #row2 = layout.row()
+        #row2.operator(another operator function)
+        # OR row2.prop(context.scene, "float_input") | # Put this under ur operator --> float_input = bpy.props.FloatProperty( ... )
