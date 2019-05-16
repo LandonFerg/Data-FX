@@ -24,8 +24,8 @@ bl_info = {
 
 import bpy
 
-from . csv_op import OT_Load_CSV
-from . main_panel import PT_Main_Panel
-classes = (OT_Load_CSV, PT_Main_Panel)
+from . scatter_op import OT_Scatter
+from . scatter_panel import PT_Scatter_Panel
+classes = (OT_Scatter, PT_Scatter_Panel)
 
 register, unregister = bpy.utils.register_classes_factory(classes)
