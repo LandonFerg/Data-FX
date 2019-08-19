@@ -16,19 +16,8 @@ class PT_Scatter_Panel(bpy.types.Panel):
 
         row = layout.row()
         mainOp = row.operator('view3d.do_stuff', text = "Load-CSV")
-        #row.label("Scatter Plot")
 
-        '''row2 = layout.row()
-        row2.prop(context.scene, 'my_tool_Xs')
-        
-
-        row3 = layout.row()
-        row3.prop(context.scene, 'my_tool_Ys')
-
-        row4 = layout.row()
-        row4.prop(context.scene, 'my_tool_Zs')'''
-
-        # Col test
+        # Col vals
         col = layout.split().column(align=True)
         col.label(text="CSV Columns")
         col.prop(context.scene, 'my_tool_Xs')
@@ -46,6 +35,9 @@ class PT_Scatter_Panel(bpy.types.Panel):
             row6.enabled = False
         elif bpy.context.scene.dupe_enable == True:
             row6.enabled = True
+        
+        row7 = layout.row()
+        row7.prop(context.scene, 'axis_enable')
             
         #NOTES
         #row2 = layout.row()
