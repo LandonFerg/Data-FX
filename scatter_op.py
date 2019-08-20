@@ -21,14 +21,14 @@ class OT_Scatter(bpy.types.Operator):
 
     bpy.types.Scene.my_tool_Ys = bpy.props.IntProperty(
         name = 'Y-Loc',
-        default = 0,
+        default = 1,
         min = 0,
         max = csvMax
     )
 
     bpy.types.Scene.my_tool_Zs = bpy.props.IntProperty(
         name = 'Z-Loc',
-        default = 0,
+        default = 2,
         min = 0,
         max = csvMax
 
@@ -50,18 +50,26 @@ class OT_Scatter(bpy.types.Operator):
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
                 xProp = bpy.context.scene.my_tool_Xs # X val
-                yProp = bpy.context.scene.my_tool_Ys # Y val
-                zProp = bpy.context.scene.my_tool_Zs # Z val
+                yProp = bpy.context.scene.my_tool_Ys
+                zProp = bpy.context.scene.my_tool_Zs 
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
-                dupe_object_str = bpy.context.scene.dupeObj # Dupe string
+                dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
                 next(reader) # Skip headers
-                zAxisFull = [] # D3fine z axis
+                # Define axis arrays
+                zAxisFull = []
+                xAxisFull = []
+                yAxisFull = []
+                cylWdith = 0.15 # Width of axis cylinders
                 for row in reader:
+                    # Graph values
                     currentX = row[xProp]
                     currentY = row[yProp]
                     currentZ = row[zProp]
+                    # Graph value arrays
                     zAxisFull.append(float(currentZ)) # Append each Z value to the array
+                    xAxisFull.append(float(currentX))
+                    yAxisFull.append(float(currentY))
                     csvMax = len(row) # set max value for column select
                     # Clone dupe process
                     if clone_dup:
@@ -75,13 +83,22 @@ class OT_Scatter(bpy.types.Operator):
                     else:   # Default cube if unchecked
                         newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
-                  ########HERE#########################################
+                # Axis generation
                 if axis_gen:
+                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinde mesh
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(zAxisFull) + abs(min(zAxisFull))]   # Set max Z value + abs(min) to Z size
+                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    print("####     NEGATIVE ABS VAL plus MAX Z AXIS", max(zAxisFull) + abs(min(zAxisFull)))
+
+                    newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
+                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radianss
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(xAxisFull) + abs(min(xAxisFull))]
+                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+
                     newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.dimensions = [0.2,0.2,max(zAxisFull) + abs(min(zAxisFull))]   # Set max Z value + abs(min) to Z size
-                    print("#### Z AXIS VALUES", zAxisFull)
-                    print("##### Z AXIS MAXIMUM: ", max(zAxisFull))
-                    print("#### Z AXIS MINIMUM: ", min(zAxisFull))
+                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radianss
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(yAxisFull) + abs(min(yAxisFull))]
+                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")
