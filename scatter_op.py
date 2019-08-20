@@ -3,10 +3,10 @@ import csv
 import os
 
 class OT_Scatter(bpy.types.Operator):
-    bl_idname = "view3d.do_stuff"
+    bl_idname = "view3d.do_scatter"
     bl_label = "Load CSV"
     bl_description = "Loads CSV"
-    csvMax = 8 #Length of csv columns
+    csvMax = 8 # Length of csv columns
     filepath = bpy.props.StringProperty(
         subtype="FILE_PATH",
         default='*.csv;'
@@ -88,7 +88,6 @@ class OT_Scatter(bpy.types.Operator):
                     newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinde mesh
                     bpy.context.object.dimensions = [cylWdith,cylWdith,max(zAxisFull) + abs(min(zAxisFull))]   # Set max Z value + abs(min) to Z size
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
-                    print("####     NEGATIVE ABS VAL plus MAX Z AXIS", max(zAxisFull) + abs(min(zAxisFull)))
 
                     newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,0) # in radianss

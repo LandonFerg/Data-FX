@@ -14,9 +14,6 @@ class PT_Scatter_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        row = layout.row()
-        mainOp = row.operator('view3d.do_stuff', text = "Load-CSV")
-
         # Col vals
         col = layout.split().column(align=True)
         col.label(text="CSV Columns")
@@ -38,8 +35,6 @@ class PT_Scatter_Panel(bpy.types.Panel):
         
         row7 = layout.row()
         row7.prop(context.scene, 'axis_enable')
-            
-        #NOTES
-        #row2 = layout.row()
-        #row2.operator(another operator function)
-        # OR row2.prop(context.scene, "float_input") | # Put this under ur operator --> float_input = bpy.props.FloatProperty( ... )
+
+        row = layout.row()
+        mainOp = row.operator('view3d.do_scatter', text = "Load-CSV & Generate")
