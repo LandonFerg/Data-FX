@@ -25,7 +25,7 @@ bl_info = {
 import bpy
 
 from . scatter_op import OT_Scatter
-from . scatter_panel import PT_Scatter_Panel
-classes = (OT_Scatter, PT_Scatter_Panel)
+from . scatter_panel import Scatter_Panel
+classes = (OT_Scatter, Scatter_Panel)
 
 register, unregister = bpy.utils.register_classes_factory(classes)

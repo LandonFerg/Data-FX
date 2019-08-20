@@ -1,7 +1,7 @@
 import bpy
 
-class PT_Scatter_Panel(bpy.types.Panel):
-    bl_idname = "Scatter_Panel"
+class Scatter_Panel(bpy.types.Panel):
+    bl_idname = "SCATTER_PT_Panel"
     bl_label = "Scatter Plot"
     bl_category = "DataFX"
     bl_space_type = "VIEW_3D"
