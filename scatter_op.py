@@ -61,6 +61,7 @@ class OT_Scatter(bpy.types.Operator):
                 xAxisFull = []
                 yAxisFull = []
                 cylWdith = 0.15 # Width of axis cylinders
+                axisPadding = 1.2 # extra length for axis
                 for row in reader:
                     # Graph values
                     currentX = row[xProp]
@@ -85,18 +86,18 @@ class OT_Scatter(bpy.types.Operator):
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
                 if axis_gen:
-                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinde mesh
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(zAxisFull) + abs(min(zAxisFull))]   # Set max Z value + abs(min) to Z size
+                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinder mesh
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(zAxisFull) + abs(min(zAxisFull))) * axisPadding]   # Set max Z value + abs(min) to Z size
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
 
                     newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,0) # in radianss
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(xAxisFull) + abs(min(xAxisFull))]
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(xAxisFull) + abs(min(xAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
 
                     newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radianss
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,max(yAxisFull) + abs(min(yAxisFull))]
+                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(yAxisFull) + abs(min(yAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
         else:
             print("Error: File not a CSV type")
