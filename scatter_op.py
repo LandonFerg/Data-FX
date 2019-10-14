@@ -1,6 +1,7 @@
 import bpy
 import csv
 import os
+from bpy.props import FloatVectorProperty    
 
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
@@ -40,8 +41,15 @@ class OT_Scatter(bpy.types.Operator):
         )
     bpy.types.Scene.axis_enable = bpy.props.BoolProperty(   # Enable axis generation
         name="Generate axis",
-        default = False
+        default = True
         )
+    bpy.types.Scene.axis_color = FloatVectorProperty(
+        name="Axis color",
+        subtype='COLOR',
+        default=(0.012, 0.012, 0.012),
+        min=0.0, max=1.0,
+        description="color picker"
+         )
 
     def execute(self, context):
         if(self.filepath.endswith('.csv')): # File is CSV
@@ -91,12 +99,12 @@ class OT_Scatter(bpy.types.Operator):
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
 
                     newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radianss
+                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(xAxisFull) + abs(min(xAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
 
                     newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radianss
+                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(yAxisFull) + abs(min(yAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
         else:

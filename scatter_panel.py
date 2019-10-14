@@ -7,9 +7,9 @@ class Scatter_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
 
-    @classmethod
-    def poll(cls, context):
-        return (context.object is not None)
+    # @classmethod 
+    # def poll(cls, context):
+    #     return (context.object is not None) -- makes panel dissappear if no object is selected
 
     def draw(self, context):
         layout = self.layout
@@ -36,5 +36,10 @@ class Scatter_Panel(bpy.types.Panel):
         row7 = layout.row()
         row7.prop(context.scene, 'axis_enable')
 
+        row8 = layout.row()
+        row8.prop(context.scene, 'axis_color')
+
         row = layout.row()
         mainOp = row.operator('view3d.do_scatter', text = "Load-CSV & Generate")
+
+        
