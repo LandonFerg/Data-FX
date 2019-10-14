@@ -63,6 +63,8 @@ class OT_Scatter(bpy.types.Operator):
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
+                setAxisColor = bpy.context.scene.axis_color # axis color
+                print(setAxisColor)
                 next(reader) # Skip headers
                 # Define axis arrays
                 zAxisFull = []
@@ -94,19 +96,24 @@ class OT_Scatter(bpy.types.Operator):
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
                 if axis_gen:
+                    axisMat = bpy.data.materials.new(name="AxisMat")
                     newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinder mesh
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(zAxisFull) + abs(min(zAxisFull))) * axisPadding]   # Set max Z value + abs(min) to Z size
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
+                    axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1) # FIXME saying it only has 2 items when it needs 4
 
                     newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,0) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(xAxisFull) + abs(min(xAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
 
                     newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(yAxisFull) + abs(min(yAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")
