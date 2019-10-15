@@ -71,7 +71,7 @@ class OT_Scatter(bpy.types.Operator):
                 xAxisFull = []
                 yAxisFull = []
                 cylWdith = 0.15 # Width of axis cylinders
-                axisPadding = 1.2 # extra length for axis
+                axisPadding = 2 # extra length for axis
                 for row in reader:
                     # Graph values
                     currentX = row[xProp]
