@@ -33,6 +33,7 @@ class OT_Scatter(bpy.types.Operator):
         max = csvMax
 
     )
+
     bpy.types.Scene.dupeObj = bpy.props.StringProperty()    # Dupe obj selector
     bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(   # Enable dupe checkbox
         name="Use dupe object",
