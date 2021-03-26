@@ -1,6 +1,7 @@
 import bpy
 import csv
 import os
+from bpy.props import FloatVectorProperty    
 
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
@@ -33,7 +34,6 @@ class OT_Scatter(bpy.types.Operator):
         max = csvMax
 
     )
-
     bpy.types.Scene.dupeObj = bpy.props.StringProperty()    # Dupe obj selector
     bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(   # Enable dupe checkbox
         name="Use dupe object",
@@ -41,8 +41,15 @@ class OT_Scatter(bpy.types.Operator):
         )
     bpy.types.Scene.axis_enable = bpy.props.BoolProperty(   # Enable axis generation
         name="Generate axis",
-        default = False
+        default = True
         )
+    bpy.types.Scene.axis_color = FloatVectorProperty(
+        name="Axis color",
+        subtype='COLOR',
+        default=(0.012, 0.012, 0.012),
+        min=0.0, max=1.0,
+        description="color picker"
+         )
 
     def execute(self, context):
         if(self.filepath.endswith('.csv')): # File is CSV
@@ -56,13 +63,15 @@ class OT_Scatter(bpy.types.Operator):
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
+                setAxisColor = bpy.context.scene.axis_color # axis color
+                print(setAxisColor)
                 next(reader) # Skip headers
                 # Define axis arrays
                 zAxisFull = []
                 xAxisFull = []
                 yAxisFull = []
                 cylWdith = 0.15 # Width of axis cylinders
-                axisPadding = 1.2 # extra length for axis
+                axisPadding = 2 # extra length for axis
                 for row in reader:
                     # Graph values
                     currentX = row[xProp]
@@ -87,19 +96,24 @@ class OT_Scatter(bpy.types.Operator):
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
                 if axis_gen:
+                    axisMat = bpy.data.materials.new(name="AxisMat")
                     newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinder mesh
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(zAxisFull) + abs(min(zAxisFull))) * axisPadding]   # Set max Z value + abs(min) to Z size
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
+                    axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1) # FIXME saying it only has 2 items when it needs 4
 
                     newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radianss
+                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(xAxisFull) + abs(min(xAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
 
                     newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radianss
+                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
                     bpy.context.object.dimensions = [cylWdith,cylWdith,(max(yAxisFull) + abs(min(yAxisFull))) * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
+                    context.object.data.materials.append(axisMat) # Set mat selection
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")

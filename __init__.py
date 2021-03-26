@@ -15,7 +15,7 @@ bl_info = {
     "name" : "DataFX",
     "author" : "Landon-Ferguson",
     "description" : "",
-    "blender" : (2, 80, 0),
+    "blender" : (2, 90, 2),
     "version" : (0, 0, 3),
     "location" : "View3D",
     "warning" : "",
@@ -23,9 +23,37 @@ bl_info = {
 }
 
 import bpy
+from bpy.types import Panel, PropertyGroup, Scene, WindowManager
+from bpy.props import (
+    IntProperty,
+    EnumProperty,
+    StringProperty,
+    PointerProperty,
+)
 
 from . scatter_op import OT_Scatter
 from . scatter_panel import Scatter_Panel
-classes = (OT_Scatter, Scatter_Panel)
+from . map_panel import Map_Panel, PlaceholderProperties
+classes = (OT_Scatter, Scatter_Panel, Map_Panel, PlaceholderProperties)
 
-register, unregister = bpy.utils.register_classes_factory(classes)
+
+#unregister = bpy.utils.register_classes_factory(classes)
+
+def register():
+    from bpy.utils import register_class
+
+    for cls in classes:
+        register_class(cls)
+
+    Scene.placeholder = PointerProperty(type=PlaceholderProperties) # register map property (put in op later?)
+
+def unregister():
+    from bpy.utils import unregister_class
+
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+    del Scene.placeholder
+
+if __name__ == "__main__":
+    register()
