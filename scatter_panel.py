@@ -14,6 +14,9 @@ class Scatter_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
+        row4 = layout.row()
+        row4.prop(context.scene, "file_select")
+
         # Col vals
         col = layout.split().column(align=True)
         col.label(text="CSV Columns")

@@ -8,10 +8,14 @@ class OT_Scatter(bpy.types.Operator):
     bl_label = "Load CSV"
     bl_description = "Loads CSV"
     csvMax = 8 # Length of csv columns
-    filepath = bpy.props.StringProperty(
+    # File selector
+    bpy.types.Scene.file_select = bpy.props.StringProperty(
+        name="File",
+        default="",
+        description="Data",
+        maxlen=1024,
         subtype="FILE_PATH",
-        default='*.csv;'
-        )
+    )
     # X, Y, Z inputs
     bpy.types.Scene.my_tool_Xs = bpy.props.IntProperty(
         name = 'X-Loc',
@@ -52,8 +56,13 @@ class OT_Scatter(bpy.types.Operator):
          )
 
     def execute(self, context):
-        if(self.filepath.endswith('.csv')): # File is CSV
-            csvFile = self.filepath
+        selectedfile = bpy.context.scene.file_select # Get our selected file
+        if not selectedfile: # empty string check
+            print("Error: No file selected")
+            self.report({'ERROR_INVALID_INPUT'}, "File field is empty")
+            return{'CANCELLED'}
+        if(selectedfile.endswith('.csv')): # File is CSV
+            csvFile = selectedfile
             # TODO: Generate axis on fileload (add inputs for x and y) & add axis labels
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
@@ -120,7 +129,3 @@ class OT_Scatter(bpy.types.Operator):
             return{'CANCELLED'}
 
         return {'FINISHED'}
-
-    def invoke(self, context, event):   # File select
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
