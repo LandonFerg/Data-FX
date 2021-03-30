@@ -73,12 +73,11 @@ class OT_Scatter(bpy.types.Operator):
                 obj_dimensions = [0.4,0.4,0.4] # var to keep track of dims to compensate for origin
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
+                label_gen = bpy.context.scene.label_enable
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
                 setAxisColor = bpy.context.scene.axis_color # axis color
-                print(setAxisColor)
                 
                 header_row = next(reader)
-                print(print("Headers in XYZ:" , header_row[xProp] , header_row[yProp] ,  header_row[zProp])) ####
                 #next(reader) # Skip headers
                 # Define axis arrays
                 zAxisFull = []
@@ -91,7 +90,6 @@ class OT_Scatter(bpy.types.Operator):
                 if clone_dup:
                     dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
                     obj_dimensions = dupeObject.dimensions
-                    print("DIMENSIONS", dupeObject.dimensions)
                 else:
                     obj_dimensions = [0.4,0.4,0.4]
                 
@@ -119,7 +117,7 @@ class OT_Scatter(bpy.types.Operator):
                         newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
-                if axis_gen:    # TODO: wrap this in a function
+                if axis_gen:
 
                     # make sure our axis is at far left/right (assuming centered obj origins)
                     x_padding = obj_dimensions[0]/2
@@ -127,35 +125,64 @@ class OT_Scatter(bpy.types.Operator):
                     z_padding = obj_dimensions[2]/2
 
                     axisMat = bpy.data.materials.new(name="AxisMat")
-                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding ,min(yAxisFull) - y_padding,-cylWidth*0.245), radius=0.5) # Make axis cylinder mesh
-                    #z_axis_size = max(zAxisFull) + obj_dimensions # compensate for object origin (assuming centered origin)
+                    bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding ,min(yAxisFull) - y_padding,-cylWidth*0.245), radius=0.5) # Make axis cylinder mesh
+                    newZCyl = bpy.context.object # define object
                     z_axis_size = (max(zAxisFull) + abs(min(zAxisFull))) + obj_dimensions[2] # calculate scale so its lined up with graph
                     z_axis_size = z_axis_size + cylWidth/2 # account for axis size to line up XYZ cylinder edges
                     bpy.context.object.dimensions = [cylWidth,cylWidth, z_axis_size * axisPadding]   # Set max Z value + abs(min) to Z size
-                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
                     axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1)
 
                     # calculate position taking into account origin size
-                    newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0, min(yAxisFull) - y_padding, min(zAxisFull) - z_padding), radius=0.5)
+                    bpy.ops.mesh.primitive_cylinder_add(location=(0, min(yAxisFull) - y_padding, min(zAxisFull) - z_padding), radius=0.5)
+                    newXCyl = bpy.context.object # define object
                     bpy.context.object.rotation_euler = (0,1.5708,0) # in radians (90 deg.)
                     x_axis_size = (max(xAxisFull) + abs(min(xAxisFull))) + obj_dimensions[0] # account for origins when sizing
                     bpy.context.object.dimensions = [cylWidth,cylWidth, x_axis_size * axisPadding]
-                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
 
-                    newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding, 0, min(zAxisFull) - z_padding), radius=0.5)
+                    bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding, 0, min(zAxisFull) - z_padding), radius=0.5)
+                    newYCyl = bpy.context.object # define object
                     bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
                     y_axis_size = (max(yAxisFull) + abs(min(yAxisFull))) + obj_dimensions[1] # account for origins when sizing
                     bpy.context.object.dimensions = [cylWidth,cylWidth, y_axis_size * axisPadding]
-                    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
+                
+                if label_gen and axis_gen:
+                    
+                    XFont = bpy.data.curves.new(type="FONT",name="X Font Curve")
+                    XFont.body = str(header_row[xProp])
+                    XFont.align_x="CENTER"
+                    #LabelFont = bpy.data.fonts.load('C:/font/file/path') # TODO: Enable Font loading from custom stringprop
+                    #XFont.font = Font
+                    x_font_obj = bpy.data.objects.new("X_Header", bpy.data.curves["X Font Curve"])
+                    bpy.context.scene.collection.objects.link(x_font_obj)
+                    x_font_obj.location = (float(newXCyl.location[0]) + x_axis_size/2, float(newXCyl.location[1]), float(newXCyl.location[2]))
+                    constraint = x_font_obj.constraints.new("TRACK_TO")
+                    constraint.target = bpy.context.scene.camera
+                    constraint.track_axis = "TRACK_Z"
 
-                #print(print("Headers in XYZ:" , header_row[xProp] , header_row[yProp] ,  header_row[zProp])) ####
-                # if label_enable:
-                #     bpy.data.curves.new(type="FONT",name="Font Curve").body = str(header_row[xProp])
-                #     x_font_obj = bpy.data.objects.new("Font Object", bpy.data.curves["Font Curve"])
-                #     bpy.context.scene.collection.objects.link(x_font_obj)
+                    YFont = bpy.data.curves.new(type="FONT",name="Y Font Curve")
+                    YFont.body = str(header_row[yProp])
+                    YFont.align_x="CENTER"
+                    y_font_obj = bpy.data.objects.new("Y_Header", bpy.data.curves["Y Font Curve"])
+                    bpy.context.scene.collection.objects.link(y_font_obj)
+                    y_font_obj.location = (float(newYCyl.location[0]), float(newYCyl.location[1]) + y_axis_size/2, float(newYCyl.location[2]))
+                    constraint = y_font_obj.constraints.new("TRACK_TO")
+                    constraint.target = bpy.context.scene.camera
+                    constraint.track_axis = "TRACK_Z"
+
+                    ZFont = bpy.data.curves.new(type="FONT",name="Z Font Curve")
+                    ZFont.body = str(header_row[zProp])
+                    ZFont.align_x="CENTER"
+                    z_font_obj = bpy.data.objects.new("Z_Header", bpy.data.curves["Z Font Curve"])
+                    bpy.context.scene.collection.objects.link(z_font_obj)
+                    z_font_obj.location = (float(newZCyl.location[0]), float(newZCyl.location[1]), float(newZCyl.location[2]) + z_axis_size/2)
+                    constraint = z_font_obj.constraints.new("TRACK_TO")
+                    constraint.target = bpy.context.scene.camera
+                    constraint.track_axis = "TRACK_Z"
+
+                    
 
             bpy.ops.ed.undo_push() # add to undo stack to prevent crashing
 
