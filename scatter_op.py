@@ -23,20 +23,17 @@ class OT_Scatter(bpy.types.Operator):
         min = 0,
         max = csvMax
     )
-
     bpy.types.Scene.my_tool_Ys = bpy.props.IntProperty(
         name = 'Y-Loc',
         default = 1,
         min = 0,
         max = csvMax
     )
-
     bpy.types.Scene.my_tool_Zs = bpy.props.IntProperty(
         name = 'Z-Loc',
         default = 2,
         min = 0,
         max = csvMax
-
     )
     bpy.types.Scene.dupeObj = bpy.props.StringProperty()    # Dupe obj selector
     bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(   # Enable dupe checkbox
@@ -45,6 +42,10 @@ class OT_Scatter(bpy.types.Operator):
         )
     bpy.types.Scene.axis_enable = bpy.props.BoolProperty(   # Enable axis generation
         name="Generate axis",
+        default = True
+        )
+    bpy.types.Scene.label_enable = bpy.props.BoolProperty(   # Enable label generation
+        name="Use Labels",
         default = True
         )
     bpy.types.Scene.axis_color = FloatVectorProperty(
@@ -149,6 +150,12 @@ class OT_Scatter(bpy.types.Operator):
                     bpy.context.object.dimensions = [cylWidth,cylWidth, y_axis_size * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
+
+                #print(print("Headers in XYZ:" , header_row[xProp] , header_row[yProp] ,  header_row[zProp])) ####
+                # if label_enable:
+                #     bpy.data.curves.new(type="FONT",name="Font Curve").body = str(header_row[xProp])
+                #     x_font_obj = bpy.data.objects.new("Font Object", bpy.data.curves["Font Curve"])
+                #     bpy.context.scene.collection.objects.link(x_font_obj)
 
             bpy.ops.ed.undo_push() # add to undo stack to prevent crashing
 

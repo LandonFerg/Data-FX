@@ -42,6 +42,9 @@ class Scatter_Panel(bpy.types.Panel):
         row8 = layout.row()
         row8.prop(context.scene, 'axis_color')
 
+        row9 = layout.row()
+        row9.prop(context.scene, 'label_enable')
+
         row = layout.row()
         mainOp = row.operator('view3d.do_scatter', text = "Load-CSV & Generate")
 
