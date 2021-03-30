@@ -68,19 +68,32 @@ class OT_Scatter(bpy.types.Operator):
                 reader = csv.reader(f)
                 xProp = bpy.context.scene.my_tool_Xs # X val
                 yProp = bpy.context.scene.my_tool_Ys
-                zProp = bpy.context.scene.my_tool_Zs 
+                zProp = bpy.context.scene.my_tool_Zs
+                obj_dimensions = [0.4,0.4,0.4] # var to keep track of dims to compensate for origin
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
                 setAxisColor = bpy.context.scene.axis_color # axis color
                 print(setAxisColor)
-                next(reader) # Skip headers
+                
+                header_row = next(reader)
+                print(print("Headers in XYZ:" , header_row[xProp] , header_row[yProp] ,  header_row[zProp])) ####
+                #next(reader) # Skip headers
                 # Define axis arrays
                 zAxisFull = []
                 xAxisFull = []
                 yAxisFull = []
-                cylWdith = 0.15 # Width of axis cylinders
-                axisPadding = 2 # extra length for axis
+                cylWidth = 0.15 # Width of axis cylinders
+                axisPadding = 1 # extra length for axis
+
+                # define obj_dimensions for origin calculations
+                if clone_dup:
+                    dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
+                    obj_dimensions = dupeObject.dimensions
+                    print("DIMENSIONS", dupeObject.dimensions)
+                else:
+                    obj_dimensions = [0.4,0.4,0.4]
+                
                 for row in reader:
                     # Graph values
                     currentX = row[xProp]
@@ -94,6 +107,7 @@ class OT_Scatter(bpy.types.Operator):
                     # Clone dupe process
                     if clone_dup:
                         dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
+                        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY') # center our origin
                         newDupeObject = dupeObject.data.copy() # Cloned dupe
                         #newDupeObject.active_material = dupeObject.active_material.copy() # TODO: Add boolean checkbox to allow individual mats
                         clonedObj = bpy.data.objects.new("dupe_object_str", newDupeObject) # new obj
@@ -104,25 +118,40 @@ class OT_Scatter(bpy.types.Operator):
                         newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
-                if axis_gen:
+                if axis_gen:    # TODO: wrap this in a function
+
+                    # make sure our axis is at far left/right (assuming centered obj origins)
+                    x_padding = obj_dimensions[0]/2
+                    y_padding = obj_dimensions[1]/2
+                    z_padding = obj_dimensions[2]/2
+
                     axisMat = bpy.data.materials.new(name="AxisMat")
-                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5) # Make axis cylinder mesh
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(zAxisFull) + abs(min(zAxisFull))) * axisPadding]   # Set max Z value + abs(min) to Z size
+                    newZCyl = bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding ,min(yAxisFull) - y_padding,-cylWidth*0.245), radius=0.5) # Make axis cylinder mesh
+                    #z_axis_size = max(zAxisFull) + obj_dimensions # compensate for object origin (assuming centered origin)
+                    z_axis_size = (max(zAxisFull) + abs(min(zAxisFull))) + obj_dimensions[2] # calculate scale so its lined up with graph
+                    z_axis_size = z_axis_size + cylWidth/2 # account for axis size to line up XYZ cylinder edges
+                    bpy.context.object.dimensions = [cylWidth,cylWidth, z_axis_size * axisPadding]   # Set max Z value + abs(min) to Z size
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
-                    axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1) # FIXME saying it only has 2 items when it needs 4
+                    axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1)
 
-                    newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
-                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radians
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(xAxisFull) + abs(min(xAxisFull))) * axisPadding]
+                    # calculate position taking into account origin size
+                    newXCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0, min(yAxisFull) - y_padding, min(zAxisFull) - z_padding), radius=0.5)
+                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radians (90 deg.)
+                    x_axis_size = (max(xAxisFull) + abs(min(xAxisFull))) + obj_dimensions[0] # account for origins when sizing
+                    bpy.context.object.dimensions = [cylWidth,cylWidth, x_axis_size * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
 
-                    newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(0,0,0), radius=0.5)
+                    newYCyl = bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding, 0, min(zAxisFull) - z_padding), radius=0.5)
                     bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
-                    bpy.context.object.dimensions = [cylWdith,cylWdith,(max(yAxisFull) + abs(min(yAxisFull))) * axisPadding]
+                    y_axis_size = (max(yAxisFull) + abs(min(yAxisFull))) + obj_dimensions[1] # account for origins when sizing
+                    bpy.context.object.dimensions = [cylWidth,cylWidth, y_axis_size * axisPadding]
                     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True) # Apply scale
                     context.object.data.materials.append(axisMat) # Set mat selection
+
+            bpy.ops.ed.undo_push() # add to undo stack to prevent crashing
+
         else:
             print("Error: File not a CSV type")
             self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")
