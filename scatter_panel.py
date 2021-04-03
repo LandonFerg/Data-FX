@@ -17,12 +17,24 @@ class Scatter_Panel(bpy.types.Panel):
         row4 = layout.row()
         row4.prop(context.scene, "file_select")
 
+        row45 = layout.row()
+        mainOp = row45.operator('view3d.load_vals', text = "Load CSV")
+
         # Col vals
         col = layout.split().column(align=True)
         col.label(text="CSV Columns")
-        col.prop(context.scene, 'my_tool_Xs')
-        col.prop(context.scene, 'my_tool_Ys')
-        col.prop(context.scene, 'my_tool_Zs')
+
+        value_row_x = layout.row()
+        value_row_x.label(text="X Axis: ")
+        value_row_x.prop(context.scene, 'my_tool_Xs')
+
+        value_row_y = layout.row()
+        value_row_y.label(text="Y Axis: ")
+        value_row_y.prop(context.scene, 'my_tool_Ys')
+
+        value_row_z = layout.row()
+        value_row_z.label(text="Z Axis: ")
+        value_row_z.prop(context.scene, 'my_tool_Zs')
 
         row5 = layout.row()
         row5.prop(context.scene, 'dupe_enable')
@@ -46,6 +58,6 @@ class Scatter_Panel(bpy.types.Panel):
         row9.prop(context.scene, 'label_enable')
 
         row = layout.row()
-        mainOp = row.operator('view3d.do_scatter', text = "Load-CSV & Generate")
+        mainOp = row.operator('view3d.do_scatter', text = "Generate")
 
         

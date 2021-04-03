@@ -33,8 +33,9 @@ from bpy.props import (
 
 from . scatter_op import OT_Scatter
 from . scatter_panel import Scatter_Panel
+from . updatevals_op import OT_UpdateVals
 from . map_panel import Map_Panel, PlaceholderProperties
-classes = (OT_Scatter, Scatter_Panel, Map_Panel, PlaceholderProperties)
+classes = (OT_Scatter, Scatter_Panel, Map_Panel, PlaceholderProperties, OT_UpdateVals)
 
 
 #unregister = bpy.utils.register_classes_factory(classes)

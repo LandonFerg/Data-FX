@@ -18,19 +18,19 @@ class OT_Scatter(bpy.types.Operator):
     )
     # X, Y, Z inputs
     bpy.types.Scene.my_tool_Xs = bpy.props.IntProperty(
-        name = 'X-Loc',
+        name = '',
         default = 0,
         min = 0,
         max = csvMax
     )
     bpy.types.Scene.my_tool_Ys = bpy.props.IntProperty(
-        name = 'Y-Loc',
+        name = '',
         default = 1,
         min = 0,
         max = csvMax
     )
     bpy.types.Scene.my_tool_Zs = bpy.props.IntProperty(
-        name = 'Z-Loc',
+        name = '',
         default = 2,
         min = 0,
         max = csvMax
@@ -113,8 +113,8 @@ class OT_Scatter(bpy.types.Operator):
                         clonedObj.location = (float(row[xProp]), float(row[yProp]), float(row[zProp])) # Update clone location
                         bpy.context.collection.objects.link(clonedObj)
                         bpy.context.collection.objects.update # Update scene
-                    else:   # Default cube if unchecked
-                        newCube = bpy.ops.mesh.primitive_cube_add(location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
+                    else:   # Default ico_sphere if unchecked
+                        newCube = bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
                 if axis_gen:
@@ -149,7 +149,7 @@ class OT_Scatter(bpy.types.Operator):
                     context.object.data.materials.append(axisMat) # Set mat selection
                 
                 if label_gen and axis_gen:
-                    
+
                     XFont = bpy.data.curves.new(type="FONT",name="X Font Curve")
                     XFont.body = str(header_row[xProp])
                     XFont.align_x="CENTER"
