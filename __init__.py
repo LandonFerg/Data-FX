@@ -33,9 +33,8 @@ from bpy.props import (
 
 from . scatter_op import OT_Scatter
 from . scatter_panel import Scatter_Panel
-from . updatevals_op import OT_UpdateVals
 from . map_panel import Map_Panel, PlaceholderProperties
-classes = (OT_Scatter, Scatter_Panel, Map_Panel, PlaceholderProperties, OT_UpdateVals)
+classes = (OT_Scatter, Scatter_Panel, Map_Panel, PlaceholderProperties)
 
 
 #unregister = bpy.utils.register_classes_factory(classes)
@@ -47,7 +46,6 @@ def register():
         register_class(cls)
 
     Scene.placeholder = PointerProperty(type=PlaceholderProperties) # register map property (put in op later?)
-    #Scene.scatter_dropdown = PointerProperty(type=HeaderProperties)
 
 def unregister():
     from bpy.utils import unregister_class
