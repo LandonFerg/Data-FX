@@ -1,14 +1,15 @@
 import bpy
 import csv
 import os
-from bpy.props import FloatVectorProperty    
+from bpy.props import FloatVectorProperty
 
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
     bl_label = "Load CSV"
     bl_description = "Loads CSV"
     csvMax = 8 # Length of csv columns
-    # File selector
+
+    ### PANEL PROPERTIES & VARIABLES ###
     bpy.types.Scene.file_select = bpy.props.StringProperty(
         name="File",
         default="",
@@ -54,7 +55,56 @@ class OT_Scatter(bpy.types.Operator):
         default=(0.012, 0.012, 0.012),
         min=0.0, max=1.0,
         description="color picker"
-         )
+        )
+
+    ### DROPDOWN ENUMS ###
+    def populate_items(self, context): # Update dropdowns
+        dropdown_items = [] # items enum
+        csv_file = bpy.context.scene.file_select
+        if not csv_file: # empty string check
+            return ""
+        if(csv_file.endswith('.csv')): # File is CSV
+            with open (csv_file, 'rt') as f:
+                    reader = csv.reader(f)
+                    headers = next(reader)
+                    count = 0
+                    for h in headers: # push header vals to dropdown
+                        identifier = str(h)
+                        name = str(h)
+                        tooltip = ""
+                        number = count
+                        dropdown_items.append((identifier, name, tooltip, number)) # append item tuple
+                        count += 1
+                    return dropdown_items
+
+    # TODO: make these enums a class https://docs.blender.org/api/current/bpy.props.html
+    bpy.types.Scene.header_dropdown_X = bpy.props.EnumProperty(
+            items=populate_items,
+            name="",
+            description="",
+            default=None,
+            update = None,
+            get=None,
+            set=None
+    )
+    bpy.types.Scene.header_dropdown_Y = bpy.props.EnumProperty(
+            items=populate_items,
+            name="",
+            description="",
+            default=None,
+            update = None,
+            get=None,
+            set=None
+    )
+    bpy.types.Scene.header_dropdown_Z = bpy.props.EnumProperty(
+            items=populate_items,
+            name="",
+            description="",
+            default=None,
+            update = None,
+            get=None,
+            set=None
+    )
 
     def execute(self, context):
         selectedfile = bpy.context.scene.file_select # Get our selected file
@@ -67,9 +117,6 @@ class OT_Scatter(bpy.types.Operator):
             # TODO: Generate axis on fileload (add inputs for x and y) & add axis labels
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
-                xProp = bpy.context.scene.my_tool_Xs # X val
-                yProp = bpy.context.scene.my_tool_Ys
-                zProp = bpy.context.scene.my_tool_Zs
                 obj_dimensions = [0.4,0.4,0.4] # var to keep track of dims to compensate for origin
                 clone_dup = bpy.context.scene.dupe_enable   # Dupe bool
                 axis_gen = bpy.context.scene.axis_enable # Generate aixs bool
@@ -77,15 +124,26 @@ class OT_Scatter(bpy.types.Operator):
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
                 setAxisColor = bpy.context.scene.axis_color # axis color
                 
-                header_row = next(reader)
-                #next(reader) # Skip headers
+                header_row = next(reader) # skip headers
+
+                # Get number values of header dropdown [0, 1, 2] (which axis is which)
+                x_number = header_row.index(bpy.context.scene.header_dropdown_X)
+                y_number = header_row.index(bpy.context.scene.header_dropdown_Y)
+                z_number = header_row.index(bpy.context.scene.header_dropdown_Z)
+
+                # Apply selected num values
+                xProp = x_number
+                yProp = y_number
+                zProp = z_number
+
+                print(x_number, y_number, z_number)
+
                 # Define axis arrays
                 zAxisFull = []
                 xAxisFull = []
                 yAxisFull = []
                 cylWidth = 0.15 # Width of axis cylinders
                 axisPadding = 1 # extra length for axis
-
                 # define obj_dimensions for origin calculations
                 if clone_dup:
                     dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
@@ -118,7 +176,6 @@ class OT_Scatter(bpy.types.Operator):
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                 # Axis generation
                 if axis_gen:
-
                     # make sure our axis is at far left/right (assuming centered obj origins)
                     x_padding = obj_dimensions[0]/2
                     y_padding = obj_dimensions[1]/2
@@ -182,7 +239,6 @@ class OT_Scatter(bpy.types.Operator):
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
 
-                    
 
             bpy.ops.ed.undo_push() # add to undo stack to prevent crashing
 
@@ -192,3 +248,4 @@ class OT_Scatter(bpy.types.Operator):
             return{'CANCELLED'}
 
         return {'FINISHED'}
+

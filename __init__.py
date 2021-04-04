@@ -47,6 +47,7 @@ def register():
         register_class(cls)
 
     Scene.placeholder = PointerProperty(type=PlaceholderProperties) # register map property (put in op later?)
+    #Scene.scatter_dropdown = PointerProperty(type=HeaderProperties)
 
 def unregister():
     from bpy.utils import unregister_class
