@@ -25,6 +25,9 @@ class Map_Panel(bpy.types.Panel):
         row = layout.row()
         col.prop(placeholder, "dropdown_box", text="Dropdown")
 
+        bottom_row = layout.row()
+        mainOp = bottom_row.operator('view3d.do_map', text="Generate")
+
 # from https://blender.stackexchange.com/questions/170219/python-panel-dropdownlist-and-integer-button
 class PlaceholderProperties(PropertyGroup):
     inc_dec_int: IntProperty(

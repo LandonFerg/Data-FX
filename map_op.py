@@ -8,5 +8,11 @@ from bpy.props import (
     FloatVectorProperty,
 )
 
-class OT_Scatter(bpy.types.Operator):
-    
+class OT_Map_Plot(bpy.types.Operator):
+    bl_idname = "view3d.do_map"
+    bl_label = "Generate Map"
+    bl_description = "Generates Map"
+
+    def execute(self, context):
+        print("Hello World")
+        return {'FINISHED'}
