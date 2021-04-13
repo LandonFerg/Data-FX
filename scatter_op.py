@@ -78,7 +78,7 @@ class OT_Scatter(bpy.types.Operator):
                     return dropdown_items
 
     # TODO: make these enums a class https://docs.blender.org/api/current/bpy.props.html
-    bpy.types.Scene.header_dropdown_X = bpy.props.EnumProperty(
+    bpy.types.Scene.scatter_dropdown_X = bpy.props.EnumProperty(
             items=populate_items,
             name="",
             description="",
@@ -87,7 +87,7 @@ class OT_Scatter(bpy.types.Operator):
             get=None,
             set=None
     )
-    bpy.types.Scene.header_dropdown_Y = bpy.props.EnumProperty(
+    bpy.types.Scene.scatter_dropdown_Y = bpy.props.EnumProperty(
             items=populate_items,
             name="",
             description="",
@@ -96,7 +96,7 @@ class OT_Scatter(bpy.types.Operator):
             get=None,
             set=None
     )
-    bpy.types.Scene.header_dropdown_Z = bpy.props.EnumProperty(
+    bpy.types.Scene.scatter_dropdown_Z = bpy.props.EnumProperty(
             items=populate_items,
             name="",
             description="",
@@ -127,9 +127,9 @@ class OT_Scatter(bpy.types.Operator):
                 header_row = next(reader) # skip headers
 
                 # Get number values of header dropdown [0, 1, 2] (which axis is which)
-                x_number = header_row.index(bpy.context.scene.header_dropdown_X)
-                y_number = header_row.index(bpy.context.scene.header_dropdown_Y)
-                z_number = header_row.index(bpy.context.scene.header_dropdown_Z)
+                x_number = header_row.index(bpy.context.scene.scatter_dropdown_Z)
+                y_number = header_row.index(bpy.context.scene.scatter_dropdown_Y)
+                z_number = header_row.index(bpy.context.scene.scatter_dropdown_Z)
 
                 # Apply selected num values
                 xProp = x_number
@@ -145,7 +145,7 @@ class OT_Scatter(bpy.types.Operator):
                 cylWidth = 0.15 # Width of axis cylinders
                 axisPadding = 1 # extra length for axis
                 # define obj_dimensions for origin calculations
-                if clone_dup:
+                if clone_dup and dupe_object_str:
                     dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
                     obj_dimensions = dupeObject.dimensions
                 else:
@@ -162,7 +162,7 @@ class OT_Scatter(bpy.types.Operator):
                     yAxisFull.append(float(currentY))
                     csvMax = len(row) # set max value for column select
                     # Clone dupe process
-                    if clone_dup:
+                    if clone_dup and dupe_object_str:
                         dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
                         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY') # center our origin
                         newDupeObject = dupeObject.data.copy() # Cloned dupe

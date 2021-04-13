@@ -13,6 +13,7 @@ class Map_Panel(bpy.types.Panel):
     bl_category = "DataFX"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout

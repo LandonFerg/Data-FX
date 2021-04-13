@@ -25,15 +25,15 @@ class Scatter_Panel(bpy.types.Panel):
 
         value_row_x = layout.row()
         value_row_x.label(text="X Axis: ")
-        value_row_x.prop(context.scene, "header_dropdown_X", text="")
+        value_row_x.prop(context.scene, "scatter_dropdown_X", text="")
 
         value_row_y = layout.row()
         value_row_y.label(text="Y Axis: ")
-        value_row_y.prop(context.scene, "header_dropdown_Y", text="")
+        value_row_y.prop(context.scene, "scatter_dropdown_Y", text="")
 
         value_row_z = layout.row()
         value_row_z.label(text="Z Axis: ")
-        value_row_z.prop(context.scene, "header_dropdown_Z", text="")
+        value_row_z.prop(context.scene, "scatter_dropdown_Z", text="")
 
         row5 = layout.row()
         row5.prop(context.scene, 'dupe_enable')
