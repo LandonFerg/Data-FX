@@ -127,7 +127,7 @@ class OT_Scatter(bpy.types.Operator):
                 header_row = next(reader) # skip headers
 
                 # Get number values of header dropdown [0, 1, 2] (which axis is which)
-                x_number = header_row.index(bpy.context.scene.scatter_dropdown_Z)
+                x_number = header_row.index(bpy.context.scene.scatter_dropdown_X)
                 y_number = header_row.index(bpy.context.scene.scatter_dropdown_Y)
                 z_number = header_row.index(bpy.context.scene.scatter_dropdown_Z)
 
