@@ -10,7 +10,7 @@ class OT_Scatter(bpy.types.Operator):
     csvMax = 8 # Length of csv columns
 
     ### PANEL PROPERTIES & VARIABLES ###
-    bpy.types.Scene.file_select = bpy.props.StringProperty(
+    bpy.types.Scene.scatter_file_select = bpy.props.StringProperty(
         name="File",
         default="",
         description="Data",
@@ -60,7 +60,7 @@ class OT_Scatter(bpy.types.Operator):
     ### DROPDOWN ENUMS ###
     def populate_items(self, context): # Update dropdowns
         dropdown_items = [] # items enum
-        csv_file = bpy.context.scene.file_select
+        csv_file = bpy.context.scene.scatter_file_select
         if not csv_file: # empty string check
             return ""
         if(csv_file.endswith('.csv')): # File is CSV
@@ -107,7 +107,7 @@ class OT_Scatter(bpy.types.Operator):
     )
 
     def execute(self, context):
-        selectedfile = bpy.context.scene.file_select # Get our selected file
+        selectedfile = bpy.context.scene.scatter_file_select # Get our selected file
         if not selectedfile: # empty string check
             print("Error: No file selected")
             self.report({'ERROR_INVALID_INPUT'}, "File field is empty")

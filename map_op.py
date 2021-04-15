@@ -14,31 +14,46 @@ class OT_Map_Plot(bpy.types.Operator):
     bl_label = "Generate Map"
     bl_description = "Generates Map"
 
+    bpy.types.Scene.map_file_select = bpy.props.StringProperty(
+        name="File",
+        default="",
+        description="Data",
+        maxlen=1024,
+        subtype="FILE_PATH",
+    )
+
+    def populate_items(self, context):  # Update dropdowns
+        dropdown_items = []
+        return dropdown_items
+
+    bpy.types.Scene.map_dropdown_lat = bpy.props.EnumProperty(
+        items=populate_items,
+        name="",
+        description="",
+        default=None,
+        update=None,
+        get=None,
+        set=None
+    )
+
+    bpy.types.Scene.map_dropdown_lon = bpy.props.EnumProperty(
+        items=populate_items,
+        name="",
+        description="",
+        default=None,
+        update=None,
+        get=None,
+        set=None
+    )
+
     def execute(self, context):
         world_size = 2
         print("Hello World")
         self.make_world(world_size)
-        lat = 37.090
-        lon = -95.7128
-        self.calculate_cords(lon, lat, world_size/2)  # USA
-        lat = 36.7783
-        lon = -119.417
-        self.calculate_cords(lon, lat, world_size/2)  # CA
-       	lat = -25.274
-        lon = 133.775
-        self.calculate_cords(lon, lat, world_size/2)  # AUS
-       	lat = -33.918
-        lon = 18.423
-        self.calculate_cords(lon, lat, world_size/2)  # SA
         lat = 27.994402
         lon = -81.760254
-        self.calculate_cords(lon, lat, world_size/2)  # FL
-        lat = -22.90642
-        lon = -43.18223
-        self.calculate_cords(lon, lat, world_size/2) # BR
-        lat = -36.848461
-        lon = 174.763336
-        self.calculate_cords(lon, lat, world_size/2)  # NZ
+        self.calculate_cords(lon, lat, world_size/2)
+        
         bpy.ops.ed.undo_push()  # add to undo stack to prevent crashing
         return {'FINISHED'}
 

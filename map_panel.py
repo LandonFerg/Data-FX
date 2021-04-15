@@ -18,13 +18,26 @@ class Map_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        # # Col vals
+        # Map properties
         col = layout.split().column(align=True)
         col.label(text="Map Selection")
         placeholder = context.scene.placeholder
 
+        # Csv defs
+        value_row_x = layout.row()
+        value_row_x.label(text="Latitude: ")
+        value_row_x.prop(context.scene, "map_dropdown_lat", text="")
+
+        value_row_y = layout.row()
+        value_row_y.label(text="Longitude: ")
+        value_row_y.prop(context.scene, "map_dropdown_lon", text="")
+
+
         row = layout.row()
-        col.prop(placeholder, "dropdown_box", text="Dropdown")
+        col.prop(placeholder, "dropdown_box", text="Map type: ")
+
+        row1 = layout.row()
+        row1.prop(context.scene, "map_file_select")
 
         bottom_row = layout.row()
         mainOp = bottom_row.operator('view3d.do_map', text="Generate")
@@ -36,11 +49,9 @@ class PlaceholderProperties(PropertyGroup):
     )
     dropdown_box: EnumProperty(
         items=(
-            ("A", "Ahh", "Tooltip for A"),
-            ("B", "Bee", "Tooltip for B"),
-            ("C", "Cee", "Tooltip for C"),
+            ("0", "Globe", ""),
         ),
         name="Description for the Elements",
-        default="A",
+        default="0",
         description="Tooltip for the Dropdownbox",
     )

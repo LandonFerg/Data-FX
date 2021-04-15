@@ -17,7 +17,7 @@ class Scatter_Panel(bpy.types.Panel):
         layout = self.layout
 
         row4 = layout.row()
-        row4.prop(context.scene, "file_select")
+        row4.prop(context.scene, "scatter_file_select")
 
         # Col vals
         col = layout.split().column(align=True)
