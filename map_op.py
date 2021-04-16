@@ -1,4 +1,6 @@
 import bpy
+import os
+import csv
 import math
 from bpy.types import Panel, PropertyGroup, Scene, WindowManager
 from bpy.props import (
@@ -22,9 +24,25 @@ class OT_Map_Plot(bpy.types.Operator):
         subtype="FILE_PATH",
     )
 
-    def populate_items(self, context):  # Update dropdowns
-        dropdown_items = []
-        return dropdown_items
+    ### DROPDOWN ENUMS ###
+    def populate_items(self, context): # Update dropdowns
+        dropdown_items = [] # items enum
+        csv_file = bpy.context.scene.map_file_select
+        if not csv_file: # empty string check
+            return ""
+        if(csv_file.endswith('.csv')): # File is CSV
+            with open (csv_file, 'rt') as f:
+                    reader = csv.reader(f)
+                    headers = next(reader)
+                    count = 0
+                    for h in headers: # push header vals to dropdown
+                        identifier = str(h)
+                        name = str(h)
+                        tooltip = ""
+                        number = count
+                        dropdown_items.append((identifier, name, tooltip, number)) # append item tuple
+                        count += 1
+                    return dropdown_items
 
     bpy.types.Scene.map_dropdown_lat = bpy.props.EnumProperty(
         items=populate_items,
@@ -47,6 +65,7 @@ class OT_Map_Plot(bpy.types.Operator):
     )
 
     def execute(self, context):
+        selectedfile = bpy.context.scene.map_file_select  # Get our selected file
         world_size = 2
         print("Hello World")
         self.make_world(world_size)
