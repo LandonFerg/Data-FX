@@ -66,18 +66,45 @@ class OT_Map_Plot(bpy.types.Operator):
 
     def execute(self, context):
         selectedfile = bpy.context.scene.map_file_select  # Get our selected file
-        world_size = 2
+        if not selectedfile: # empty string check
+            print("Error: No file selected")
+            self.report({'ERROR_INVALID_INPUT'}, "File field is empty")
+            return{'CANCELLED'}
+        if(selectedfile.endswith('.csv')): # File is CSV
+            csvFile = selectedfile
+            with open (csvFile, 'rt') as f: # Iterate through CSV
+                reader = csv.reader(f)
+                header_row = next(reader) # skip headers
+                
+                # Get number values of header dropdown [0, 1, 2] (which axis is which)
+                lat_number = header_row.index(bpy.context.scene.map_dropdown_lat)
+                lon_number = header_row.index(bpy.context.scene.map_dropdown_lon)
+
+                world_size = 2
+                self.make_world(world_size)
+
+                latitudes = []
+                longitudes = []
+
+                for row in reader:
+                    currentLat = row[lat_number]
+                    currentLon = row[lon_number]
+
+                    self.calculate_cords(float(currentLon), float(currentLat), world_size/2)
+
+
+        else:
+            print("Error: File not a CSV type")
+            self.report({'ERROR_INVALID_INPUT'}, "File not of type CSV")
+            return{'CANCELLED'}
+
         print("Hello World")
-        self.make_world(world_size)
-        lat = 27.994402
-        lon = -81.760254
-        self.calculate_cords(lon, lat, world_size/2)
         
         bpy.ops.ed.undo_push()  # add to undo stack to prevent crashing
         return {'FINISHED'}
 
     def calculate_cords(self, lon, lat, radius):
-        marker_size = 0.05
+        marker_size = 0.02
 
         latRad, lonRad = math.radians(lat), math.radians(lon)
         
@@ -93,7 +120,7 @@ class OT_Map_Plot(bpy.types.Operator):
         print("sphereical cordinates are: ", x, y, z)
 
     def make_world(self, _world_size):
-        sphere_world = bpy.ops.mesh.primitive_uv_sphere_add(segments=45, ring_count=28, location=(0, 0, 0), rotation=(0, 0, -0.1048))
+        sphere_world = bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, location=(0, 0, 0), rotation=(0, 0, -0.1048))
         bpy.context.object.dimensions = [_world_size, _world_size, _world_size]
         bpy.ops.object.editmode_toggle()
 
