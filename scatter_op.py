@@ -148,7 +148,7 @@ class OT_Scatter(bpy.types.Operator):
                         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY') # center our origin
                         newDupeObject = dupeObject.data.copy() # Cloned dupe
                         #newDupeObject.active_material = dupeObject.active_material.copy() # TODO: Add boolean checkbox to allow individual mats
-                        clonedObj = bpy.data.objects.new("dupe_object_str", newDupeObject) # new obj
+                        clonedObj = bpy.data.objects.new(name=dupe_object_str, object_data=newDupeObject) # new obj
                         clonedObj.location = (float(row[xProp]), float(row[yProp]), float(row[zProp])) # Update clone location
                         bpy.context.collection.objects.link(clonedObj)
                         bpy.context.collection.objects.update # Update scene
