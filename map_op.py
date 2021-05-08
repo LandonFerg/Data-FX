@@ -104,7 +104,7 @@ class OT_Map_Plot(bpy.types.Operator):
         return {'FINISHED'}
 
     def calculate_cords(self, lon, lat, radius):
-        marker_size = 0.02
+        marker_size = 0.01
 
         latRad, lonRad = math.radians(lat), math.radians(lon)
         
@@ -113,14 +113,12 @@ class OT_Map_Plot(bpy.types.Operator):
         z = ((radius) * math.sin(latRad))
 
         map_point = bpy.ops.mesh.primitive_uv_sphere_add(
-            segments=32, ring_count=16, location=(x, y, z))
-
+            segments=18, ring_count=12, location=(x, y, z))
+        
         bpy.context.object.dimensions = [marker_size, marker_size, marker_size]
 
-        print("sphereical cordinates are: ", x, y, z)
-
     def make_world(self, _world_size):
-        sphere_world = bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, location=(0, 0, 0), rotation=(0, 0, -0.1048))
+        sphere_world = bpy.ops.mesh.primitive_uv_sphere_add(segments=45, ring_count=28, location=(0, 0, 0), rotation=(0, 0, -0.1048))
         bpy.context.object.dimensions = [_world_size, _world_size, _world_size]
         bpy.ops.object.editmode_toggle()
 

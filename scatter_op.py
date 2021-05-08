@@ -17,25 +17,6 @@ class OT_Scatter(bpy.types.Operator):
         maxlen=1024,
         subtype="FILE_PATH",
     )
-    # X, Y, Z inputs
-    bpy.types.Scene.my_tool_Xs = bpy.props.IntProperty(
-        name = '',
-        default = 0,
-        min = 0,
-        max = csvMax
-    )
-    bpy.types.Scene.my_tool_Ys = bpy.props.IntProperty(
-        name = '',
-        default = 1,
-        min = 0,
-        max = csvMax
-    )
-    bpy.types.Scene.my_tool_Zs = bpy.props.IntProperty(
-        name = '',
-        default = 2,
-        min = 0,
-        max = csvMax
-    )
     bpy.types.Scene.dupeObj = bpy.props.StringProperty()    # Dupe obj selector
     bpy.types.Scene.dupe_enable = bpy.props.BoolProperty(   # Enable dupe checkbox
         name="Use dupe object",
