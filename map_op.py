@@ -104,6 +104,14 @@ class OT_Map_Plot(bpy.types.Operator):
         return {'FINISHED'}
 
     def calculate_cords(self, lon, lat, radius):
+        
+        # New 'Points' collection
+        if not bpy.data.collections.get("Points"):
+            prop_collection = bpy.data.collections.new(name="Points")
+            bpy.context.scene.collection.children.link(prop_collection)
+        else:
+            prop_collection = bpy.data.collections.get("Points")
+
         marker_size = 0.01
 
         latRad, lonRad = math.radians(lat), math.radians(lon)
@@ -112,10 +120,17 @@ class OT_Map_Plot(bpy.types.Operator):
         y = ((radius) * math.cos(latRad) * math.sin(lonRad))
         z = ((radius) * math.sin(latRad))
 
-        map_point = bpy.ops.mesh.primitive_uv_sphere_add(
+        bpy.ops.mesh.primitive_uv_sphere_add(
             segments=18, ring_count=12, location=(x, y, z))
-        
-        bpy.context.object.dimensions = [marker_size, marker_size, marker_size]
+
+        map_point = bpy.context.object
+        map_point.dimensions = [marker_size, marker_size, marker_size] # size
+
+        for coll in map_point.users_collection: # Remove from other collections
+            coll.objects.unlink(map_point)
+
+        prop_collection.objects.link(map_point) # Add to point collection
+
 
     def make_world(self, _world_size):
         sphere_world = bpy.ops.mesh.primitive_uv_sphere_add(segments=45, ring_count=28, location=(0, 0, 0), rotation=(0, 0, -0.1048))

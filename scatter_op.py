@@ -132,6 +132,12 @@ class OT_Scatter(bpy.types.Operator):
                 else:
                     obj_dimensions = [0.4,0.4,0.4]
                 
+                if not bpy.data.collections.get("Points"):
+                    prop_collection = bpy.data.collections.new(name="Points")
+                    bpy.context.scene.collection.children.link(prop_collection)
+                else:
+                    prop_collection = bpy.data.collections.get("Points")
+
                 for row in reader:
                     # Graph values
                     currentX = row[xProp]
@@ -150,11 +156,17 @@ class OT_Scatter(bpy.types.Operator):
                         #newDupeObject.active_material = dupeObject.active_material.copy() # TODO: Add boolean checkbox to allow individual mats
                         clonedObj = bpy.data.objects.new(name=dupe_object_str, object_data=newDupeObject) # new obj
                         clonedObj.location = (float(row[xProp]), float(row[yProp]), float(row[zProp])) # Update clone location
-                        bpy.context.collection.objects.link(clonedObj)
+                        prop_collection.objects.link(clonedObj) # Add dupe to new collection
                         bpy.context.collection.objects.update # Update scene
                     else:   # Default ico_sphere if unchecked
-                        newCube = bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
+                        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
+                        prim = bpy.context.object;
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
+                        for coll in prim.users_collection: # Remove from other collections
+                            coll.objects.unlink(prim)
+                        prop_collection.objects.link(prim) # Add to point collection
+                        bpy.context.collection.objects.update # Update scene
+
                 # Axis generation
                 if axis_gen:
                     # make sure our axis is at far left/right (assuming centered obj origins)
