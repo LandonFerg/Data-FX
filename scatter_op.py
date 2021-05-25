@@ -3,6 +3,8 @@ import csv
 import os
 from bpy.props import FloatVectorProperty
 
+from .helpers import helper_class
+
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
     bl_label = "Load CSV"
@@ -88,6 +90,7 @@ class OT_Scatter(bpy.types.Operator):
     )
 
     def execute(self, context):
+        helper = helper_class()
         selectedfile = bpy.context.scene.scatter_file_select # Get our selected file
         if not selectedfile: # empty string check
             print("Error: No file selected")
@@ -95,7 +98,6 @@ class OT_Scatter(bpy.types.Operator):
             return{'CANCELLED'}
         if(selectedfile.endswith('.csv')): # File is CSV
             csvFile = selectedfile
-            # TODO: Generate axis on fileload (add inputs for x and y) & add axis labels
             with open (csvFile, 'rt') as f: # Iterate through CSV
                 reader = csv.reader(f)
                 obj_dimensions = [0.4,0.4,0.4] # var to keep track of dims to compensate for origin
@@ -104,25 +106,29 @@ class OT_Scatter(bpy.types.Operator):
                 label_gen = bpy.context.scene.label_enable
                 dupe_object_str = bpy.context.scene.dupeObj # Dupe object name
                 setAxisColor = bpy.context.scene.axis_color # axis color
-                
                 header_row = next(reader) # skip headers
+                csvContents = list(csv.reader(f)) # add data to list so we can loop more than once
 
-                # Get number values of header dropdown [0, 1, 2] (which axis is which)
+                # Get header values from the header dropdown
                 x_number = header_row.index(bpy.context.scene.scatter_dropdown_X)
                 y_number = header_row.index(bpy.context.scene.scatter_dropdown_Y)
                 z_number = header_row.index(bpy.context.scene.scatter_dropdown_Z)
 
-                # Apply selected num values
+                # Apply our selected header values
                 xProp = x_number
                 yProp = y_number
                 zProp = z_number
-
-                print(x_number, y_number, z_number)
 
                 # Define axis arrays
                 zAxisFull = []
                 xAxisFull = []
                 yAxisFull = []
+
+                # Define max graph values (for blender world space)
+                XSize = 5
+                YSize = 5
+                ZSize = 5
+
                 cylWidth = 0.15 # Width of axis cylinders
                 axisPadding = 1 # extra length for axis
                 # define obj_dimensions for origin calculations
@@ -138,16 +144,29 @@ class OT_Scatter(bpy.types.Operator):
                 else:
                     prop_collection = bpy.data.collections.get("Points")
 
-                for row in reader:
+                for row in csvContents:
                     # Graph values
                     currentX = row[xProp]
                     currentY = row[yProp]
                     currentZ = row[zProp]
                     # Graph value arrays
-                    zAxisFull.append(float(currentZ)) # Append each Z value to the array
+                    zAxisFull.append(float(currentZ))
                     xAxisFull.append(float(currentX))
                     yAxisFull.append(float(currentY))
+
+                # store min and max of axes
+                xMin, xMax = min(xAxisFull), max(xAxisFull)
+                yMin, yMax = min(yAxisFull), max(yAxisFull)
+                zMin, zMax = min(zAxisFull), max(zAxisFull)
+
+                for row in csvContents:
                     csvMax = len(row) # set max value for column select
+                    
+                    # Remap values to size of chart in world space
+                    newX = helper.remap(float(row[xProp]), xMin, xMax, 0, XSize)
+                    newY = helper.remap(float(row[yProp]), yMin, yMax, 0, YSize)
+                    newZ = helper.remap(float(row[zProp]), zMin, zMax, 0, ZSize)
+
                     # Clone dupe process
                     if clone_dup and dupe_object_str:
                         dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
@@ -159,7 +178,7 @@ class OT_Scatter(bpy.types.Operator):
                         prop_collection.objects.link(clonedObj) # Add dupe to new collection
                         bpy.context.collection.objects.update # Update scene
                     else:   # Default ico_sphere if unchecked
-                        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, location=(float(row[xProp]),float(row[yProp]),float(row[zProp])))
+                        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, location=(float(newX),float(newY),float(newZ)))
                         prim = bpy.context.object;
                         bpy.context.object.dimensions = [0.4,0.4,0.4]
                         for coll in prim.users_collection: # Remove from other collections
@@ -197,9 +216,11 @@ class OT_Scatter(bpy.types.Operator):
                     y_axis_size = (max(yAxisFull) + abs(min(yAxisFull))) + obj_dimensions[1] # account for origins when sizing
                     bpy.context.object.dimensions = [cylWidth,cylWidth, y_axis_size * axisPadding]
                     context.object.data.materials.append(axisMat) # Set mat selection
+
+                    ### Marker Gen ###
+                    #bpy.ops.mesh.primitive_cylinder_add(location=)
                 
                 if label_gen and axis_gen:
-
                     XFont = bpy.data.curves.new(type="FONT",name="X Font Curve")
                     XFont.body = str(header_row[xProp])
                     XFont.align_x="CENTER"
@@ -241,4 +262,7 @@ class OT_Scatter(bpy.types.Operator):
             return{'CANCELLED'}
 
         return {'FINISHED'}
+
+    # def generate_markers(self, minX, maxX,minY,maxY,minZ,maxZ):
+
 
