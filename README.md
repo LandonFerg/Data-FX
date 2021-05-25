@@ -1,5 +1,11 @@
 # Data-FX
-Load CSV files in Blender3d to visualize data
+Data-FX is an addon for Blender (2.9) that allows for the visualization of data with different charts
 
-#### Below is an example of a scatter plot generated with Data-FX
-![Image of 3dScatter Plot](https://i.imgur.com/2FUIy41.png)
+Currently, there are only 2 chart options...
+
+- A Scatter plot which plots up to 3 values in 3d space
+- And a "Map plot" that visualizes points on a sphere when given longitudes and latitudes
+
+# Below are some examples
+![Image of 3dScatter Plot](https://www.landonferguson.com/images/scatter_plot2.png)
+![Image of World with points](https://www.landonferguson.com/images/earth.png)
