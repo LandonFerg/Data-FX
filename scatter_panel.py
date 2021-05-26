@@ -16,8 +16,8 @@ class Scatter_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        row4 = layout.row()
-        row4.prop(context.scene, "scatter_file_select")
+        row = layout.row()
+        row.prop(context.scene, "scatter_file_select")
 
         # Col vals
         col = layout.split().column(align=True)
@@ -35,26 +35,41 @@ class Scatter_Panel(bpy.types.Panel):
         value_row_z.label(text="Z Axis: ")
         value_row_z.prop(context.scene, "scatter_dropdown_Z", text="")
 
-        row5 = layout.row()
-        row5.prop(context.scene, 'dupe_enable')
+        row = layout.row()
+        row.prop(context.scene, 'dupe_enable')
 
-        row6 = layout.row()
-        row6.prop_search(context.scene, "dupeObj", context.scene, "objects")
+        row8 = layout.row()
+        row8.prop_search(context.scene, "dupeObj", context.scene, "objects")
 
         # Disable dupeObj if checkbox is false
         if bpy.context.scene.dupe_enable == False:
-            row6.enabled = False
+            row8.enabled = False
         elif bpy.context.scene.dupe_enable == True:
-            row6.enabled = True
-        
-        row7 = layout.row()
-        row7.prop(context.scene, 'axis_enable')
+            row8.enabled = True
 
-        row8 = layout.row()
-        row8.prop(context.scene, 'axis_color')
+        row = layout.row()
+        row.prop(context.scene, 'axis_color')
 
-        row9 = layout.row()
-        row9.prop(context.scene, 'label_enable')
+        row = layout.row()
+        row.prop(context.scene, 'size_enable')
+
+        size_row = layout.row()
+        size_row.prop(context.scene, 'graph_size_x')
+        size_row.prop(context.scene, 'graph_size_y')
+        size_row.prop(context.scene, 'graph_size_z')
+
+        if bpy.context.scene.size_enable == False:
+            size_row.enabled = False
+        elif bpy.context.scene.size_enable == True:
+            size_row.enabled = True
+
+        row = layout.row()
+        row.prop(context.scene, 'label_enable')
+
+        row = layout.row()
+        row.prop(context.scene, 'axis_enable')
+
+        layout.row()
 
         row = layout.row()
         mainOp = row.operator('view3d.do_scatter', text = "Generate")
