@@ -14,7 +14,7 @@ class OT_Scatter(bpy.types.Operator):
     ### PANEL PROPERTIES & VARIABLES ###
     bpy.types.Scene.scatter_file_select = bpy.props.StringProperty(
         name="File",
-        default="C:/Users/Lando/Downloads/test-csv - Sheet1 - Copy.csv",
+        default="",
         description="Data",
         maxlen=1024,
         subtype="FILE_PATH",
