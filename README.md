@@ -7,5 +7,5 @@ Currently, there are only 2 chart options...
 - And a "Map plot" that visualizes points on a sphere when given longitudes and latitudes
 
 # Below are some examples
-![Image of 3dScatter Plot](https://www.landonferguson.com/images/scatter_plot2.png)
-![Image of World with points](https://www.landonferguson.com/images/earth.png)
+![Image of 3dScatter Plot](https://www.landonferguson.com/images/scatter_plot_small.png)
+![Image of World with points](https://www.landonferguson.com/images/earth_small.png)
