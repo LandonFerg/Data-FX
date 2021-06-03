@@ -1,9 +1,10 @@
 import bpy
 import csv
 import os
+import math
 from bpy.props import FloatVectorProperty
 
-from .helpers import helper_class
+from .helpers import HelperClass, NiceScale
 
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
@@ -14,7 +15,7 @@ class OT_Scatter(bpy.types.Operator):
     ### PANEL PROPERTIES & VARIABLES ###
     bpy.types.Scene.scatter_file_select = bpy.props.StringProperty(
         name="File",
-        default="",
+        default="C:/Users/Lando/Downloads/test-csv - Sheet1 - Copy.csv",
         description="Data",
         maxlen=1024,
         subtype="FILE_PATH",
@@ -110,7 +111,7 @@ class OT_Scatter(bpy.types.Operator):
     )
 
     def execute(self, context):
-        helper = helper_class()
+        helper = HelperClass()
         selectedfile = bpy.context.scene.scatter_file_select # Get our selected file
         if not selectedfile: # empty string check
             print("Error: No file selected")
@@ -267,6 +268,83 @@ class OT_Scatter(bpy.types.Operator):
                     context.object.data.materials.append(axisMat) # Set mat selection
                     axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1)
 
+                    ### Testing marker gen ###
+                    if size_enable: # we want to correctly set cordinates, but font will ALWAYS be according to CSV -- not world
+                        x_mark = NiceScale(0, graph_size_x) # set range from min size to max size
+                        y_mark = NiceScale(0, graph_size_y)
+                        z_mark = NiceScale(0, graph_size_z)
+
+                        # max mark size / mark tick rate = amount of ticks needed
+
+                        marker_width = 0.15
+                        marker_height = 0.4
+                        bpy.ops.mesh.primitive_plane_add(location=(0, -y_padding, -z_padding))
+                        bpy.context.object.dimensions = [marker_width,marker_height,1.0]
+                        bpy.context.object.rotation_euler = [math.radians(90),0,0]
+                        bpy.ops.object.transform_apply(location = True, rotation = True)
+                        x_array = bpy.context.object.modifiers.new(name="array", type='ARRAY')
+                        x_array.use_relative_offset = False
+                        x_array.use_constant_offset = True
+                        marker_amount = x_mark.maxTicks
+                        x_array.count = marker_amount + 1
+                        x_array.constant_offset_displace[0] = graph_size_x/marker_amount
+                        context.object.data.materials.append(axisMat) # Set mat selection
+                        print("min + tick spacing: "  + str((x_mark.minPoint + x_mark.tickSpacing)))
+                        solidify = bpy.context.object.modifiers.new(name="solidify", type='SOLIDIFY')
+                        solidify.offset = 0
+                        solidify.use_even_offset = True
+                        solidify.thickness = 0.06
+
+                        bpy.ops.mesh.primitive_plane_add(location=(-x_padding, 0 , -z_padding))
+                        bpy.context.object.dimensions = [marker_height,marker_width,1.0]
+                        bpy.context.object.rotation_euler = [0,math.radians(90),0]
+                        bpy.ops.object.transform_apply(location = True, rotation = True)
+                        y_array = bpy.context.object.modifiers.new(name="array", type='ARRAY')
+                        y_array.use_relative_offset = False
+                        y_array.use_constant_offset = True
+                        marker_amount = y_mark.maxTicks
+                        y_array.count = marker_amount + 1
+                        y_array.constant_offset_displace[0] = 0
+                        y_array.constant_offset_displace[1] = graph_size_y/marker_amount
+                        context.object.data.materials.append(axisMat) # Set mat selection
+                        solidify = bpy.context.object.modifiers.new(name="solidify", type='SOLIDIFY')
+                        solidify.offset = 0
+                        solidify.use_even_offset = True
+                        solidify.thickness = 0.06
+
+                        bpy.ops.mesh.primitive_plane_add(location=(-x_padding, -y_padding , 0))
+                        bpy.context.object.dimensions = [marker_width,marker_height,1.0]
+                        bpy.context.object.rotation_euler = [0,math.radians(90),0]
+                        bpy.ops.object.transform_apply(location = True, rotation = True)
+                        z_array = bpy.context.object.modifiers.new(name="array", type='ARRAY')
+                        z_array.use_relative_offset = False
+                        z_array.use_constant_offset = True
+                        marker_amount = z_mark.maxTicks
+                        z_array.count = marker_amount + 1
+                        z_array.constant_offset_displace[0] = 0
+                        z_array.constant_offset_displace[2] = graph_size_z/marker_amount
+                        context.object.data.materials.append(axisMat) # Set mat selection
+                        solidify = bpy.context.object.modifiers.new(name="solidify", type='SOLIDIFY')
+                        solidify.offset = 0
+                        solidify.use_even_offset = True
+                        solidify.thickness = 0.06
+                        
+
+                        # bpy.ops.mesh.primitive_plane_add(location=(z_mark.minPoint, 0, -z_padding, 0))
+                        # bpy.context.object.dimensions = [1.0,0.5,1.0]
+                        # bpy.ops.object.modifier_add(type='ARRAY')
+                        # bpy.context.object.modifiers["Array"].relative_offset_displace[0] = 1 + z_mark.tickSpacing
+                        # bpy.context.object.modifiers["Array"].count = (z_mark.niceMax / z_mark.tickSpacing) + 1
+
+                        
+                    else:   # set range from min csv value to max csv value
+                        x_mark=NiceScale(min(xAxisFull), max(xAxisFull))
+                        y_mark=NiceScale(min(yAxisFull), max(yAxisFull))
+                        z_mark=NiceScale(min(zAxisFull), max(zAxisFull))
+
+                    
+
+
                 if label_gen and axis_gen:
                     XFont = bpy.data.curves.new(type="FONT",name="X Font Curve")
                     XFont.body = str(header_row[xProp])
@@ -275,7 +353,8 @@ class OT_Scatter(bpy.types.Operator):
                     #XFont.font = Font
                     x_font_obj = bpy.data.objects.new("X_Header", bpy.data.curves["X Font Curve"])
                     bpy.context.scene.collection.objects.link(x_font_obj)
-                    x_font_obj.location = (float(newXCyl.location[0]) + x_axis_size/2, float(newXCyl.location[1]), float(newXCyl.location[2]))
+                    x_font_obj.data.size = 0.5
+                    x_font_obj.location = (float(newXCyl.location[0]) + x_axis_size/2, float(newXCyl.location[1]), float(newXCyl.location[2] + 0.22))
                     constraint = x_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
@@ -285,7 +364,8 @@ class OT_Scatter(bpy.types.Operator):
                     YFont.align_x="CENTER"
                     y_font_obj = bpy.data.objects.new("Y_Header", bpy.data.curves["Y Font Curve"])
                     bpy.context.scene.collection.objects.link(y_font_obj)
-                    y_font_obj.location = (float(newYCyl.location[0]), float(newYCyl.location[1]) + y_axis_size/2, float(newYCyl.location[2]))
+                    y_font_obj.data.size = 0.5
+                    y_font_obj.location = (float(newYCyl.location[0]), float(newYCyl.location[1]) + y_axis_size/2, float(newYCyl.location[2] + 0.22))
                     constraint = y_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
@@ -295,10 +375,15 @@ class OT_Scatter(bpy.types.Operator):
                     ZFont.align_x="CENTER"
                     z_font_obj = bpy.data.objects.new("Z_Header", bpy.data.curves["Z Font Curve"])
                     bpy.context.scene.collection.objects.link(z_font_obj)
+                    z_font_obj.data.size = 0.5
                     z_font_obj.location = (float(newZCyl.location[0]), float(newZCyl.location[1]), float(newZCyl.location[2]) + z_axis_size/2)
                     constraint = z_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
+
+                    # implement nice scaling of ticks: a=NiceScale(min(xAxis), max(xAxis))
+                    # remap only for world space positions so it plots correctly
+
 
 
             bpy.ops.ed.undo_push() # add to undo stack to prevent crashing
