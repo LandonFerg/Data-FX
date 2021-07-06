@@ -1,3 +1,7 @@
+# Helper class to make chart marker generation easier
+# e.x: a=NiceScale(min, max)
+# a.maxPoint, a.maxTicks, a.minPoint, a.niceMin, a.niceMax, a.tickSpacing
+
 import math
 import bpy
 class HelperClass:
@@ -10,14 +14,14 @@ class HelperClass:
             print("range is 0!")
             return None
 
-        #check for reversed input
+        # check for reversed input
         reverseInput = False
         oldMin = min( oMin, oMax )
         oldMax = max( oMin, oMax )
         if not oldMin == oMin:
             reverseInput = True
 
-        #check for reversed output
+        # check for reversed output
         reverseOutput = False   
         newMin = min( nMin, nMax )
         newMax = max( nMin, nMax )
@@ -53,9 +57,9 @@ class NiceScale:
 
     def niceNum(self, lst, rround):
         self.lst = lst
-        exponent = 0 # exponent of range */
-        fraction = 0 # fractional part of range */
-        niceFraction = 0 # nice, rounded fraction */
+        exponent = 0 # exponent of range
+        fraction = 0 # fractional part of range
+        niceFraction = 0 # nice, rounded fraction
 
         exponent = math.floor(math.log10(self.lst));
         fraction = self.lst / math.pow(10, exponent);
@@ -90,11 +94,4 @@ class NiceScale:
         self.maxTicks = maxTicks;
         self.calculate()
 
-#a=NiceScale(14024, 17756)
-# print "a.lst ", a.lst
-# print "a.maxPoint ", a.maxPoint
-# print "a.maxTicks ", a.maxTicks
-# print "a.minPoint ", a.minPoint
-# print "a.niceMax ", a.niceMax
-# print "a.niceMin ", a.niceMin
-# print "a.tickSpacing ", a.tickSpacing
+#class generate text

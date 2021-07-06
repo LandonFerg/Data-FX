@@ -4,7 +4,7 @@ import os
 import math
 from bpy.props import FloatVectorProperty
 
-from .helpers import HelperClass, NiceScale
+from ..helpers import HelperClass, NiceScale
 
 class OT_Scatter(bpy.types.Operator):
     bl_idname = "view3d.do_scatter"
@@ -248,7 +248,9 @@ class OT_Scatter(bpy.types.Operator):
                     context.object.data.materials.append(axisMat) # Set mat selection
 
                     if size_enable:
-                        bpy.ops.mesh.primitive_cylinder_add(location=(-x_padding, ySize/2, -z_padding), radius=0.5)
+                        # normal: bpy.ops.mesh.primitive_cylinder_add(location=(-x_padding, ySize/2, -z_padding), radius=0.5), radius=0.5)
+                        # wrapped
+                        bpy.ops.mesh.primitive_cylinder_add(location=(x_padding + xSize, ySize/2, -z_padding), radius=0.5)
                     else:
                         bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding, 0, min(zAxisFull) - z_padding), radius=0.5)
 
@@ -268,14 +270,15 @@ class OT_Scatter(bpy.types.Operator):
                     context.object.data.materials.append(axisMat) # Set mat selection
                     axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1)
 
-                    ### Testing marker gen ###
-                    if size_enable: # we want to correctly set cordinates, but font will ALWAYS be according to CSV -- not world
-                        x_mark = NiceScale(0, graph_size_x) # set range from min size to max size
+                    ### Marker Generation ###
+                    if size_enable: # Get a nice range of marker values mapped to our scaled graph
+                        x_mark = NiceScale(0, graph_size_x)
                         y_mark = NiceScale(0, graph_size_y)
                         z_mark = NiceScale(0, graph_size_z)
 
-                        # max mark size / mark tick rate = amount of ticks needed
+                        # max mark size / mark tick rate = amount of marks needed
 
+                        # X Markers
                         marker_width = 0.15
                         marker_height = 0.4
                         bpy.ops.mesh.primitive_plane_add(location=(0, -y_padding, -z_padding))
@@ -286,16 +289,19 @@ class OT_Scatter(bpy.types.Operator):
                         x_array.use_relative_offset = False
                         x_array.use_constant_offset = True
                         marker_amount = x_mark.maxTicks
+                        total_markers = marker_amount # used for font instantiation
                         x_array.count = marker_amount + 1
                         x_array.constant_offset_displace[0] = graph_size_x/marker_amount
                         context.object.data.materials.append(axisMat) # Set mat selection
-                        print("min + tick spacing: "  + str((x_mark.minPoint + x_mark.tickSpacing)))
+                        #print("min + tick spacing: "  + str((x_mark.minPoint + x_mark.tickSpacing)))
                         solidify = bpy.context.object.modifiers.new(name="solidify", type='SOLIDIFY')
                         solidify.offset = 0
                         solidify.use_even_offset = True
                         solidify.thickness = 0.06
 
-                        bpy.ops.mesh.primitive_plane_add(location=(-x_padding, 0 , -z_padding))
+                        # Y Markers
+                        # default bpy.ops.mesh.primitive_plane_add(location=(-x_padding, 0 , -z_padding))
+                        bpy.ops.mesh.primitive_plane_add(location=(x_padding + xSize, 0, -z_padding))   # wrapped
                         bpy.context.object.dimensions = [marker_height,marker_width,1.0]
                         bpy.context.object.rotation_euler = [0,math.radians(90),0]
                         bpy.ops.object.transform_apply(location = True, rotation = True)
@@ -312,6 +318,7 @@ class OT_Scatter(bpy.types.Operator):
                         solidify.use_even_offset = True
                         solidify.thickness = 0.06
 
+                        # Z Markers
                         bpy.ops.mesh.primitive_plane_add(location=(-x_padding, -y_padding , 0))
                         bpy.context.object.dimensions = [marker_width,marker_height,1.0]
                         bpy.context.object.rotation_euler = [0,math.radians(90),0]
@@ -328,23 +335,116 @@ class OT_Scatter(bpy.types.Operator):
                         solidify.offset = 0
                         solidify.use_even_offset = True
                         solidify.thickness = 0.06
+
+                        ### Number Marker Generation ###
+
+                        # Generate X numbers
+                        x_mark = NiceScale(min(xAxisFull), max(xAxisFull)) # set nice number range given our csv values
+                        spacing = graph_size_x/marker_amount  # calculate positional spacing
+                        labels_outside = True
+                        for m in range(x_mark.maxTicks + 1):
+                            mFont = bpy.data.curves.new(type="FONT",name="font marker")
+                            if(m == 0):
+                                mFont.body = str(x_mark.niceMin)
+                            else:
+                                mFont.body = str((m*x_mark.tickSpacing)-abs(x_mark.niceMin))
+                            
+                            print(x_mark.minPoint, x_mark.maxPoint,
+                                  x_mark.tickSpacing)
+                            mFont.align_x = "CENTER"
+                            # generate new object data for each text and link using low level API
+                            mFont_obj = bpy.data.objects.new(
+                                name="number marker", object_data=mFont)
+                            # bpy.context.scene.objects.active.data.body = str(m * x_mark.tickSpacing)
+                            # bpy.context.object.data.body = str(m * x_mark.tickSpacing)
+                            bpy.context.scene.collection.objects.link(mFont_obj)
+                            mFont_obj.data.size = 0.4
+                            newPos = m*spacing
+                            ## TODO: add checkbox for inside axis & outside axis label positions
+                            outside_padding = 0.6
+
+                            if(labels_outside):
+                                mFont_obj.location = (newPos, -y_padding-outside_padding, -z_padding)
+                            else:
+                                mFont_obj.location = (newPos, -y_padding, -z_padding)
+
+                        #Generate Y numbers
+                        y_mark = NiceScale(min(yAxisFull), max(yAxisFull))
+                        spacing = graph_size_y/marker_amount  # calculate positional spacing
+                        labels_outside = True
+                        for m in range(y_mark.maxTicks + 1):
+                            mFont = bpy.data.curves.new(
+                                type="FONT", name="font marker")
+                            if(m == 0):
+                                mFont.body = str(y_mark.niceMin)
+                            else:
+                                mFont.body = str(
+                                    (m*y_mark.tickSpacing)-abs(y_mark.niceMin))
+
+                            print(y_mark.minPoint, y_mark.maxPoint,
+                                  y_mark.tickSpacing)
+                            mFont.align_x = "CENTER"
+                            # generate new object data for each text and link using low level API
+                            mFont_obj = bpy.data.objects.new(
+                                name="number marker", object_data=mFont)
+                            # bpy.context.scene.objects.active.data.body = str(m * y_mark.tickSpacing)
+                            # bpy.context.object.data.body = str(m * y_mark.tickSpacing)
+                            mFont_obj.rotation_euler = [0, 0, math.radians(90)]
+                            bpy.context.scene.collection.objects.link(
+                                mFont_obj)
+                            mFont_obj.data.size = 0.4
+                            newPos = m*spacing
+                            ## TODO: add checkbox for inside axis & outside axis label positions
+                            outside_padding = 0.6
+
+                            if(labels_outside):
+                                # default: mFont_obj.location = (-x_padding -outside_padding, newPos, -z_padding)
+                                mFont_obj.location = ((x_padding + xSize) + outside_padding, newPos, -z_padding)  # wrapped
+                            else:
+                                mFont_obj.location = (
+                                    newPos, -y_padding, -z_padding)
+
+                        # Generate Z numbers
+                        z_mark = NiceScale(min(yAxisFull), max(yAxisFull))
+                        spacing = graph_size_z/marker_amount  # calculate positional spacing
+                        labels_outside = True
+                        for m in range(z_mark.maxTicks + 1):
+                            mFont = bpy.data.curves.new(
+                                type="FONT", name="font marker")
+                            if(m == 0):
+                                mFont.body = str(z_mark.niceMin)
+                            else:
+                                mFont.body = str(
+                                    (m*z_mark.tickSpacing)-abs(z_mark.niceMin))
+                            
+                            mFont.align_x = "CENTER"
+                            # generate new object data for each text and link using low level API
+                            mFont_obj = bpy.data.objects.new(
+                                name="number marker", object_data=mFont)
+                            # bpy.context.scene.objects.active.data.body = str(m * z_mark.tickSpacing)
+                            # bpy.context.object.data.body = str(m * z_mark.tickSpacing)
+                            mFont_obj.rotation_euler = [math.radians(90), 0, math.radians(90)]
+                            bpy.context.scene.collection.objects.link(mFont_obj)
+                            mFont_obj.data.size = 0.4
+                            newPos = m*spacing
+                            ## TODO: add checkbox for inside axis & outside axis label positions
+                            outside_padding = 0.6
+
+                            if(labels_outside):
+                                # wrapped
+                                mFont_obj.location = (-x_padding, -y_padding-outside_padding, newPos)
+                            else:
+                                mFont_obj.location = (
+                                    newPos, -y_padding, -z_padding)
                         
 
-                        # bpy.ops.mesh.primitive_plane_add(location=(z_mark.minPoint, 0, -z_padding, 0))
-                        # bpy.context.object.dimensions = [1.0,0.5,1.0]
-                        # bpy.ops.object.modifier_add(type='ARRAY')
-                        # bpy.context.object.modifiers["Array"].relative_offset_displace[0] = 1 + z_mark.tickSpacing
-                        # bpy.context.object.modifiers["Array"].count = (z_mark.niceMax / z_mark.tickSpacing) + 1
-
                         
-                    else:   # set range from min csv value to max csv value
+                    else:   # set marker position range from min csv value to max csv value
                         x_mark=NiceScale(min(xAxisFull), max(xAxisFull))
                         y_mark=NiceScale(min(yAxisFull), max(yAxisFull))
                         z_mark=NiceScale(min(zAxisFull), max(zAxisFull))
 
-                    
-
-
+                ### Generate axis labels ###
                 if label_gen and axis_gen:
                     XFont = bpy.data.curves.new(type="FONT",name="X Font Curve")
                     XFont.body = str(header_row[xProp])
@@ -380,9 +480,6 @@ class OT_Scatter(bpy.types.Operator):
                     constraint = z_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
-
-                    # implement nice scaling of ticks: a=NiceScale(min(xAxis), max(xAxis))
-                    # remap only for world space positions so it plots correctly
 
 
 

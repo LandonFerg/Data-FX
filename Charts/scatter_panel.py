@@ -24,16 +24,16 @@ class Scatter_Panel(bpy.types.Panel):
         col.label(text="CSV Columns")
 
         value_row_x = layout.row()
-        value_row_x.label(text="X Axis: ")
-        value_row_x.prop(context.scene, "scatter_dropdown_X", text="")
+        #value_row_x.label(text="X Axis: ")
+        value_row_x.prop(context.scene, "scatter_dropdown_X", text="X Axis")
 
         value_row_y = layout.row()
-        value_row_y.label(text="Y Axis: ")
-        value_row_y.prop(context.scene, "scatter_dropdown_Y", text="")
+        #value_row_y.label(text="Y Axis: ")
+        value_row_y.prop(context.scene, "scatter_dropdown_Y", text="Y Axis")
 
         value_row_z = layout.row()
-        value_row_z.label(text="Z Axis: ")
-        value_row_z.prop(context.scene, "scatter_dropdown_Z", text="")
+        #value_row_z.label(text="Z Axis: ")
+        value_row_z.prop(context.scene, "scatter_dropdown_Z", text="Z Axis")
 
         row = layout.row()
         row.prop(context.scene, 'dupe_enable')

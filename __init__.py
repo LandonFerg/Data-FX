@@ -31,10 +31,10 @@ from bpy.props import (
     PointerProperty,
 )
 
-from . scatter_op import OT_Scatter
-from . scatter_panel import Scatter_Panel
-from . map_panel import Map_Panel, PlaceholderProperties
-from . map_op import OT_Map_Plot
+from .Charts.scatter_op import OT_Scatter
+from .Charts.scatter_panel import Scatter_Panel
+from .Charts.map_panel import Map_Panel, PlaceholderProperties
+from .Charts.map_op import OT_Map_Plot
 classes = (OT_Scatter, Scatter_Panel, Map_Panel, OT_Map_Plot, PlaceholderProperties)
 
 
