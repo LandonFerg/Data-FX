@@ -16,7 +16,7 @@ bl_info = {
     "author" : "Landon-Ferguson",
     "description" : "",
     "blender" : (2, 90, 2),
-    "version" : (0, 0, 3),
+    "version" : (0, 5, 0),
     "location" : "View3D",
     "warning" : "",
     "category" : "Generic"
