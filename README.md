@@ -7,7 +7,7 @@ Currently, there are only 2 chart options...
 - And a "Map plot" that visualizes points on a sphere when given longitudes and latitudes
 
 ## Below are some examples
-<img src="https://www.landonferguson.com/images/scatter_plot_small.png" height="300"> <img src="https://www.landonferguson.com/images/earth_small.png" height="300"> <img src="https://uc8f9eb841fb653a8ade2a2c1366.dl.dropboxusercontent.com/cd/0/inline/BRzhouNYAAyRvyM8BkAiuYHYd8JoofL6JEjWjxZrvDJB3sanw_fpQtthEexgZqz6tuI68FgL0WV2R6H_80Nc1jnVvBTsOaSNn6paNRYB6YKPzAs5WdGxyXPG2xE2etv9MkgJxs38naCUrjwQSy43K0iW/file#" height="300">
+<img src="https://www.landonferguson.com/images/scatter_plot_small.png" height="270"> <img src="https://www.landonferguson.com/images/earth_small.png" height="270"> <img src="https://uc8f9eb841fb653a8ade2a2c1366.dl.dropboxusercontent.com/cd/0/inline/BRzhouNYAAyRvyM8BkAiuYHYd8JoofL6JEjWjxZrvDJB3sanw_fpQtthEexgZqz6tuI68FgL0WV2R6H_80Nc1jnVvBTsOaSNn6paNRYB6YKPzAs5WdGxyXPG2xE2etv9MkgJxs38naCUrjwQSy43K0iW/file#" height="270">
 
 ## How To
 Data-FX is located in the View3D sidebar (N -> DataFX)
