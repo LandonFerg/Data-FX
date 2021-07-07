@@ -418,6 +418,8 @@ class OT_Scatter(bpy.types.Operator):
                     YFont.body = str(header_row[yProp])
                     YFont.align_x="CENTER"
                     y_font_obj = bpy.data.objects.new("Y_Header", bpy.data.curves["Y Font Curve"])
+                    if(label_to_cam == False):
+                        y_font_obj.rotation_euler = [0, 0, math.radians(90)]
                     bpy.context.scene.collection.objects.link(y_font_obj)
                     y_font_obj.data.size = 0.5
                     y_font_obj.location = (float(chart_axis[1].location[0]), float(
@@ -431,6 +433,8 @@ class OT_Scatter(bpy.types.Operator):
                     ZFont.body = str(header_row[zProp])
                     ZFont.align_x="CENTER"
                     z_font_obj = bpy.data.objects.new("Z_Header", bpy.data.curves["Z Font Curve"])
+                    if(label_to_cam == False):
+                        z_font_obj.rotation_euler = [math.radians(90), 0, math.radians(90)]
                     bpy.context.scene.collection.objects.link(z_font_obj)
                     z_font_obj.data.size = 0.5
                     z_font_obj.location = (float(chart_axis[2].location[0]), float(chart_axis[2].location[1]), float(chart_axis[2].location[2]) + z_axis_size/2)
