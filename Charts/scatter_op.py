@@ -15,7 +15,7 @@ class OT_Scatter(bpy.types.Operator):
     ### PANEL PROPERTIES & VARIABLES ###
     bpy.types.Scene.scatter_file_select = bpy.props.StringProperty(
         name="File",
-        default="",
+        default="C:/Users/Lando/Downloads/test-csv - Sheet1 - Copy.csv",
         description="Data",
         maxlen=1024,
         subtype="FILE_PATH",
@@ -155,7 +155,7 @@ class OT_Scatter(bpy.types.Operator):
                 zSize = graph_size_z
 
                 cylWidth = 0.15 # Width of axis cylinders
-                axisPadding = 1 # extra length for axis
+                axisPadding = 1 # extra length for axis edges
                 # define obj_dimensions for origin calculations
                 if clone_dup and dupe_object_str:
                     dupeObject = bpy.data.objects[dupe_object_str] # Dupe input
@@ -187,7 +187,7 @@ class OT_Scatter(bpy.types.Operator):
                 for row in csvContents:
                     csvMax = len(row) # set max value for column select
                     
-                    # Remap values to size of chart in world space
+                    # Remap values to user defined chart size (default 0-5)
                     newX = helper.remap(float(row[xProp]), xMin, xMax, 0, xSize)
                     newY = helper.remap(float(row[yProp]), yMin, yMax, 0, ySize)
                     newZ = helper.remap(float(row[zProp]), zMin, zMax, 0, zSize)
@@ -219,10 +219,6 @@ class OT_Scatter(bpy.types.Operator):
 
                 # Axis generation based on default graph size
                 if axis_gen:
-                    # make sure our axis is at far left/right (assuming centered obj origins)
-                    x_padding = obj_dimensions[0]/2
-                    y_padding = obj_dimensions[1]/2
-                    z_padding = obj_dimensions[2]/2
 
                     if size_enable:
                         x_axis_size = xSize + obj_dimensions[0]
@@ -232,43 +228,20 @@ class OT_Scatter(bpy.types.Operator):
                         x_axis_size = (max(xAxisFull) + abs(min(xAxisFull))) + obj_dimensions[0]
                         y_axis_size = (max(yAxisFull) + abs(min(yAxisFull))) + obj_dimensions[1]
                         z_axis_size = (max(zAxisFull) + abs(min(zAxisFull))) + obj_dimensions[2]
-
-                    axisMat = bpy.data.materials.new(name="AxisMat")
                     
-
-                    # calculate position taking into account origin size
-                    if size_enable:
-                        bpy.ops.mesh.primitive_cylinder_add(location=(xSize/2, -y_padding, -z_padding), radius=0.5) # Generate axis cylinder
-                    else:
-                        bpy.ops.mesh.primitive_cylinder_add(location=(0, min(yAxisFull) - y_padding, min(zAxisFull) - z_padding), radius=0.5)
-
-                    newXCyl = bpy.context.object # define object
-                    bpy.context.object.rotation_euler = (0,1.5708,0) # in radians (90 deg.)
-                    bpy.context.object.dimensions = [cylWidth,cylWidth, x_axis_size * axisPadding]
-                    context.object.data.materials.append(axisMat) # Set mat selection
-
-                    if size_enable:
-                        # normal: bpy.ops.mesh.primitive_cylinder_add(location=(-x_padding, ySize/2, -z_padding), radius=0.5), radius=0.5)
-                        # wrapped
-                        bpy.ops.mesh.primitive_cylinder_add(location=(x_padding + xSize, ySize/2, -z_padding), radius=0.5)
-                    else:
-                        bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding, 0, min(zAxisFull) - z_padding), radius=0.5)
-
-                    newYCyl = bpy.context.object # define object
-                    bpy.context.object.rotation_euler = (0,1.5708,1.5708) # in radians
-                    bpy.context.object.dimensions = [cylWidth,cylWidth, y_axis_size * axisPadding]
-                    context.object.data.materials.append(axisMat) # Set mat selection
-
-                    if size_enable: # Use custom size
-                        bpy.ops.mesh.primitive_cylinder_add(location=(-x_padding ,-y_padding, zSize/2 -cylWidth*0.245), radius=0.5)
-                    else: # Wrap around data size
-                        bpy.ops.mesh.primitive_cylinder_add(location=(min(xAxisFull) - x_padding ,min(yAxisFull) - y_padding,-cylWidth*0.245), radius=0.5)
-
-                    newZCyl = bpy.context.object # define object
-                    z_axis_size = z_axis_size + cylWidth/2 # account for axis size to line up XYZ cylinder edges
-                    bpy.context.object.dimensions = [cylWidth,cylWidth, z_axis_size * axisPadding]   # Set max Z value + abs(min) to Z size
-                    context.object.data.materials.append(axisMat) # Set mat selection
+                    axisMat = bpy.data.materials.new(name="AxisMat")
                     axisMat.diffuse_color = (setAxisColor.r, setAxisColor.g, setAxisColor.b, 1)
+
+                    if(size_enable):
+                        chart_axis = helper.generateAxis(
+                            xSize,ySize,zSize,x_axis_size, y_axis_size, z_axis_size, obj_dimensions, cylWidth, axisPadding, axisMat)
+                    else:
+                        chart_axis = helper.generateAxisWorldSpace(
+                            xAxisFull, yAxisFull, zAxisFull, x_axis_size, y_axis_size, z_axis_size, obj_dimensions, cylWidth, axisPadding, axisMat)
+                    # store point sizes to calculate extra padding needed for markers & text
+                    x_padding = obj_dimensions[0]/2
+                    y_padding = obj_dimensions[1]/2
+                    z_padding = obj_dimensions[2]/2
 
                     ### Marker Generation ###
                     if size_enable: # Get a nice range of marker values mapped to our scaled graph
@@ -437,8 +410,6 @@ class OT_Scatter(bpy.types.Operator):
                                 mFont_obj.location = (
                                     newPos, -y_padding, -z_padding)
                         
-
-                        
                     else:   # set marker position range from min csv value to max csv value
                         x_mark=NiceScale(min(xAxisFull), max(xAxisFull))
                         y_mark=NiceScale(min(yAxisFull), max(yAxisFull))
@@ -454,7 +425,8 @@ class OT_Scatter(bpy.types.Operator):
                     x_font_obj = bpy.data.objects.new("X_Header", bpy.data.curves["X Font Curve"])
                     bpy.context.scene.collection.objects.link(x_font_obj)
                     x_font_obj.data.size = 0.5
-                    x_font_obj.location = (float(newXCyl.location[0]) + x_axis_size/2, float(newXCyl.location[1]), float(newXCyl.location[2] + 0.22))
+                    x_font_obj.location = (float(chart_axis[0].location[0]) + x_axis_size/2, float(
+                        chart_axis[0].location[1]), float(chart_axis[0].location[2] + 0.22))
                     constraint = x_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
@@ -465,7 +437,8 @@ class OT_Scatter(bpy.types.Operator):
                     y_font_obj = bpy.data.objects.new("Y_Header", bpy.data.curves["Y Font Curve"])
                     bpy.context.scene.collection.objects.link(y_font_obj)
                     y_font_obj.data.size = 0.5
-                    y_font_obj.location = (float(newYCyl.location[0]), float(newYCyl.location[1]) + y_axis_size/2, float(newYCyl.location[2] + 0.22))
+                    y_font_obj.location = (float(chart_axis[1].location[0]), float(
+                        chart_axis[1].location[1]) + y_axis_size/2, float(chart_axis[1].location[2] + 0.22))
                     constraint = y_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
@@ -476,7 +449,7 @@ class OT_Scatter(bpy.types.Operator):
                     z_font_obj = bpy.data.objects.new("Z_Header", bpy.data.curves["Z Font Curve"])
                     bpy.context.scene.collection.objects.link(z_font_obj)
                     z_font_obj.data.size = 0.5
-                    z_font_obj.location = (float(newZCyl.location[0]), float(newZCyl.location[1]), float(newZCyl.location[2]) + z_axis_size/2)
+                    z_font_obj.location = (float(chart_axis[2].location[0]), float(chart_axis[2].location[1]), float(chart_axis[2].location[2]) + z_axis_size/2)
                     constraint = z_font_obj.constraints.new("TRACK_TO")
                     constraint.target = bpy.context.scene.camera
                     constraint.track_axis = "TRACK_Z"
