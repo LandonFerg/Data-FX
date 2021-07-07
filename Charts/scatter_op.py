@@ -111,6 +111,7 @@ class OT_Scatter(bpy.types.Operator):
                 graph_size_x = bpy.context.scene.graph_size_x
                 graph_size_y = bpy.context.scene.graph_size_y
                 graph_size_z = bpy.context.scene.graph_size_z
+                label_to_cam = bpy.context.scene.label_to_cam
                 header_row = next(reader) # skip headers
                 csvContents = list(csv.reader(f)) # add data to list so we can loop more than once
 
@@ -407,9 +408,11 @@ class OT_Scatter(bpy.types.Operator):
                     x_font_obj.data.size = 0.5
                     x_font_obj.location = (float(chart_axis[0].location[0]) + x_axis_size/2, float(
                         chart_axis[0].location[1]), float(chart_axis[0].location[2] + 0.22))
-                    constraint = x_font_obj.constraints.new("TRACK_TO")
-                    constraint.target = bpy.context.scene.camera
-                    constraint.track_axis = "TRACK_Z"
+
+                    if(label_to_cam):
+                        constraint = x_font_obj.constraints.new("TRACK_TO")
+                        constraint.target = bpy.context.scene.camera
+                        constraint.track_axis = "TRACK_Z"
 
                     YFont = bpy.data.curves.new(type="FONT",name="Y Font Curve")
                     YFont.body = str(header_row[yProp])
@@ -419,9 +422,10 @@ class OT_Scatter(bpy.types.Operator):
                     y_font_obj.data.size = 0.5
                     y_font_obj.location = (float(chart_axis[1].location[0]), float(
                         chart_axis[1].location[1]) + y_axis_size/2, float(chart_axis[1].location[2] + 0.22))
-                    constraint = y_font_obj.constraints.new("TRACK_TO")
-                    constraint.target = bpy.context.scene.camera
-                    constraint.track_axis = "TRACK_Z"
+                    if(label_to_cam):
+                        constraint = y_font_obj.constraints.new("TRACK_TO")
+                        constraint.target = bpy.context.scene.camera
+                        constraint.track_axis = "TRACK_Z"
 
                     ZFont = bpy.data.curves.new(type="FONT",name="Z Font Curve")
                     ZFont.body = str(header_row[zProp])
@@ -430,9 +434,10 @@ class OT_Scatter(bpy.types.Operator):
                     bpy.context.scene.collection.objects.link(z_font_obj)
                     z_font_obj.data.size = 0.5
                     z_font_obj.location = (float(chart_axis[2].location[0]), float(chart_axis[2].location[1]), float(chart_axis[2].location[2]) + z_axis_size/2)
-                    constraint = z_font_obj.constraints.new("TRACK_TO")
-                    constraint.target = bpy.context.scene.camera
-                    constraint.track_axis = "TRACK_Z"
+                    if(label_to_cam):
+                        constraint = z_font_obj.constraints.new("TRACK_TO")
+                        constraint.target = bpy.context.scene.camera
+                        constraint.track_axis = "TRACK_Z"
 
 
 

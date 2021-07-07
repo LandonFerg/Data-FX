@@ -35,6 +35,10 @@ class Settings_Panel(bpy.types.Panel):
         description="Enables a custom graph size. (When disabled, values are pulled from the data)",
         default=True
     )
+    bpy.types.Scene.label_to_cam = bpy.props.BoolProperty(   # Enable custom graph size
+        name="Graph Labels Facing Camera",
+        default=True
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -60,6 +64,9 @@ class Settings_Panel(bpy.types.Panel):
 
         row = layout.row()
         row.prop(context.scene, 'axis_color')
+
+        row = layout.row()
+        row.prop(context.scene, 'label_to_cam')
 
         row = layout.row()
         row.prop(context.scene, 'label_enable')
