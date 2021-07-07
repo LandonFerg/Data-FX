@@ -35,10 +35,11 @@ from .Charts.scatter_op import OT_Scatter
 from .Charts.scatter_panel import Scatter_Panel
 from .Charts.map_panel import Map_Panel, PlaceholderProperties
 from .Charts.map_op import OT_Map_Plot
-classes = (OT_Scatter, Scatter_Panel, Map_Panel, OT_Map_Plot, PlaceholderProperties)
+from .etc.settings_panel import Settings_Panel
 
+classes = (Settings_Panel, OT_Scatter, Scatter_Panel, Map_Panel, OT_Map_Plot,
+           PlaceholderProperties)
 
-#unregister = bpy.utils.register_classes_factory(classes)
 
 def register():
     from bpy.utils import register_class

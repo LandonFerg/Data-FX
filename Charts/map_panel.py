@@ -18,6 +18,9 @@ class Map_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
+        row1 = layout.row()
+        row1.prop(context.scene, "map_file_select")
+        
         # Map properties
         col = layout.split().column(align=True)
         col.label(text="Map Selection")
@@ -35,9 +38,6 @@ class Map_Panel(bpy.types.Panel):
 
         row = layout.row()
         col.prop(placeholder, "dropdown_box", text="Map type: ")
-
-        row1 = layout.row()
-        row1.prop(context.scene, "map_file_select")
 
         bottom_row = layout.row()
         mainOp = bottom_row.operator('view3d.do_map', text="Generate")

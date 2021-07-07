@@ -15,7 +15,7 @@ class OT_Scatter(bpy.types.Operator):
     ### PANEL PROPERTIES & VARIABLES ###
     bpy.types.Scene.scatter_file_select = bpy.props.StringProperty(
         name="File",
-        default="C:/Users/Lando/Downloads/test-csv - Sheet1 - Copy.csv",
+        default="",
         description="Data",
         maxlen=1024,
         subtype="FILE_PATH",
@@ -33,26 +33,6 @@ class OT_Scatter(bpy.types.Operator):
         name="Use Labels",
         default = True
         )
-    bpy.types.Scene.size_enable = bpy.props.BoolProperty(   # Enable custom graph size
-        name="Graph size",
-        description="Enables a custom graph size. (When disabled, values are pulled from the data)",
-        default = True
-        )
-    bpy.types.Scene.graph_size_x = bpy.props.IntProperty(
-        name="X",
-        min=1,
-        default = 5
-    )
-    bpy.types.Scene.graph_size_y = bpy.props.IntProperty(
-        name="Y",
-        min=1,
-        default = 5
-    )
-    bpy.types.Scene.graph_size_z = bpy.props.IntProperty(
-        name="Z",
-        min=1,
-        default = 5
-    )
     bpy.types.Scene.axis_color = FloatVectorProperty(
         name="Axis color",
         subtype='COLOR',

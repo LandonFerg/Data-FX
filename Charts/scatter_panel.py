@@ -47,28 +47,6 @@ class Scatter_Panel(bpy.types.Panel):
         elif bpy.context.scene.dupe_enable == True:
             row8.enabled = True
 
-        row = layout.row()
-        row.prop(context.scene, 'axis_color')
-
-        row = layout.row()
-        row.prop(context.scene, 'size_enable')
-
-        size_row = layout.row()
-        size_row.prop(context.scene, 'graph_size_x')
-        size_row.prop(context.scene, 'graph_size_y')
-        size_row.prop(context.scene, 'graph_size_z')
-
-        if bpy.context.scene.size_enable == False:
-            size_row.enabled = False
-        elif bpy.context.scene.size_enable == True:
-            size_row.enabled = True
-
-        row = layout.row()
-        row.prop(context.scene, 'label_enable')
-
-        row = layout.row()
-        row.prop(context.scene, 'axis_enable')
-
         layout.row()
 
         row = layout.row()
