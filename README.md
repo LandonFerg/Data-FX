@@ -23,7 +23,7 @@ Simply select the headers from your csv file, edit your settings, and hit genera
 * Auto populating .csv header selection (Scatter Plot, Map Plot)
 * Support of Geographic coordinate data (Map Plot)
 
-## Planed Features
+## Planned Features
 * More chart types
 * More supported data types
 * Various chart loading optimizations
