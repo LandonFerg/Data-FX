@@ -7,7 +7,7 @@ Currently, there are only 2 chart options...
 - And a "Map plot" that visualizes points on a sphere when given longitudes and latitudes
 
 ## Below are some examples
-<img src="https://www.landonferguson.com/images/scatter_plot_small.png" height="270"> <img src="https://www.landonferguson.com/images/earth_small.png" height="270"> <img src="https://i.imgur.com/M8pYVzk.png" height="270">
+<img src="https://www.landonferguson.com/images/scatter_plot_small.png" height="270"> <img src="https://www.landonferguson.com/images/earth.png" height="270"> <img src="https://i.imgur.com/M8pYVzk.png" height="270">
 
 ## How To
 Data-FX is located in the View3D sidebar (N -> DataFX)
