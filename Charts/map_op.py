@@ -141,7 +141,7 @@ class OT_Map_Plot(bpy.types.Operator):
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes["Principled BSDF"]
         envImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
-        envImage.image = bpy.data.images.load("//textures/world_tex.jpg")
+        envImage.image = bpy.data.images.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), "textures", "world_tex.jpg"))
         mat.node_tree.links.new(bsdf.inputs['Base Color'], envImage.outputs['Color'])
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.shade_smooth()
