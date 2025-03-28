@@ -1,5 +1,5 @@
 # Data-FX
-Data-FX is an addon for Blender (2.9) that allows for the visualization of data with different charts
+Data-FX is an addon for Blender (2.9+) that allows for the visualization of data with different charts
 
 Currently, there are only 2 chart options...
 
